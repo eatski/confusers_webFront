@@ -1,0 +1,16 @@
+@import "../../designSystem/common.module.scss";
+
+.container {
+    height: 100%;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.content {
+    height: shrinkedSize(36);
+    width: size(36);
+    background-color: #333333;
+    border-radius: 20%;
+}

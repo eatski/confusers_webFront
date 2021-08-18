@@ -1,0 +1,31 @@
+$black: #333333;
+$white: #ffffff;
+
+$sizeDictionary : (
+    8 :8px,
+    10: 10px,
+    12: 12px,
+    16: 16px,
+    20: 20px,
+    24: 24px,
+    28: 28px,
+    32: 32px,
+    36: 36px,
+    40: 40px,
+    48: 48px,
+    56: 56px
+);
+
+@function size($key) {
+    @if map-has-key($sizeDictionary, $key) {
+        @return map-get($sizeDictionary, $key);
+    }
+    @error "no key"
+};
+
+@function shrinkedSize($key) {
+    @if map-has-key($sizeDictionary, $key) {
+        @return map-get($sizeDictionary, $key) * 0.9;
+    }
+    @error "no key"
+}
