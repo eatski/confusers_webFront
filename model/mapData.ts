@@ -29,4 +29,3 @@ export const createMap = ():MapData => to15.map(y => to15.map(x => !!islands.fin
 export type MapData = CellType[][];
 
 export type CellType = "Sea" | "Island"
-

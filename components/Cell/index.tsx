@@ -5,3 +5,16 @@ export const Cell : React.FC = ({children}) => {
         {children}
     </div>
 }
+
+const calcMulti = (value:string | undefined ,num:number) => `calc(${value} * ${num.toString()})`
+
+export interface FloatingCellProps {
+    x:number;
+    y:number;
+}
+
+export const FloatingCell :  React.FC<FloatingCellProps> = ({children,x,y}) => {
+    return <div style={{"top":calcMulti(styles.height,x),"left":calcMulti(styles.width,y)}} className={styles.floatingCellContainer}>
+        {children}
+    </div>
+}

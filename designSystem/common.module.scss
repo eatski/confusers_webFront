@@ -1,7 +1,4 @@
-$black: #333333;
-$white: #ffffff;
-
-$sizeDictionary : (
+$_sizes : (
     8 :8px,
     10: 10px,
     12: 12px,
@@ -17,15 +14,46 @@ $sizeDictionary : (
 );
 
 @function size($key) {
-    @if map-has-key($sizeDictionary, $key) {
-        @return map-get($sizeDictionary, $key);
+    @if map-has-key($_sizes, $key) {
+        @return map-get($_sizes, $key);
     }
     @error "no key"
 };
 
 @function shrinkedSize($key) {
-    @if map-has-key($sizeDictionary, $key) {
-        @return map-get($sizeDictionary, $key) * 0.9;
+    @if map-has-key($_sizes, $key) {
+        @return map-get($_sizes, $key) * 0.9;
+    }
+    @error "no key"
+};
+
+$_colors : (
+    black:#333333,
+    white: #ffffff
+);
+
+$playerColors : (
+    0: (
+        primary: #FF0033,
+        light: #FF99CC
+    ),
+    1: (
+        primary: #0066FF,
+        light: #99CCFF
+    ),
+    2: (
+        primary: #FF9933,
+        light: #FFCC66
+    ),
+    3: (
+        primary: #339900,
+        light: #66CC33
+    )
+);
+
+@function color($key) {
+    @if map-has-key($_colors, $key) {
+        @return map-get($_colors, $key);
     }
     @error "no key"
 }

@@ -1,0 +1,47 @@
+@import "../../designSystem/common.module.scss";
+.container {
+    height: 100%;
+    width: 100%;
+    $circleH: shrinkedSize(12);
+    $width: size(16);
+    $bodyH: size(28);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    .content {
+        position: absolute;
+        height: $circleH;
+        width: $width;
+        border-radius: 50%;
+        &::before {
+            content: "";
+            position: absolute;
+            height: $bodyH;
+            width: $width;
+            top: $circleH * 0.5 - $bodyH;
+        }
+        &::after {
+            content: "";
+            position: absolute;
+            top: - $bodyH;
+            height: $circleH;
+            width: $width;
+            border-radius: 50%;
+        }
+    }
+}
+
+@each $key,$color in $playerColors {
+    .container[data-player="#{$key}"] { 
+        .content { 
+            background-color: map-get($color, primary);
+            &::before {
+                background-color: map-get($color, primary);
+            }
+            &::after { 
+                background-color: map-get($color, light);
+            }
+        }
+    }
+}
+

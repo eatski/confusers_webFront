@@ -1,6 +1,22 @@
 @import "../../designSystem/common.module.scss";
 
+$height : shrinkedSize(48);
+$width: size(48);
+
 .container {
-    height: shrinkedSize(48);
-    width: size(48);
+    height: $height;
+    width: $width;
+}
+
+:export {
+    height: $height;
+    width: $width;
+}
+
+.floatingCellContainer {
+    height: $height;
+    width: $width;
+    position: absolute;
+    transition-property: top,left;
+    transition-duration: 500ms;
 }
