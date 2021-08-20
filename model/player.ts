@@ -3,3 +3,8 @@ export type Player = {
     y:number,
     id:number
 }
+
+export type PlayerMeta = {
+    id:number,
+    displayName: string
+}

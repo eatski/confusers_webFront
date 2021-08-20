@@ -1,0 +1,32 @@
+@import "../../designSystem/common.module.scss";
+
+.container {
+    position: relative;
+    @mixin hw {
+        width: 120px;
+        height: 40px;
+    }
+    &:hover::before {
+        position: absolute;
+        content: "";
+        @include hw;
+        background-color: color(overwrap);
+    }
+
+    @include hw;
+    border: 1px solid color(black);
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    div {
+        font-size: 24px;
+        margin-left: auto;
+        margin-right: 16px;
+    }
+    svg {
+        margin-left: 16px;
+        height: 24px;
+        width: 48px;
+        fill: color(black-light);
+    }
+}

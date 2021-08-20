@@ -3,6 +3,7 @@ import Head from 'next/head'
 import React from 'react'
 import { Board } from '../components/Board'
 import { Man } from '../components/Man'
+import { Player as PlayerView} from '../components/Player'
 import { createMap,MapData} from "../model/mapData"
 import { Player } from '../model/player'
 import styles from "./index.module.css"
@@ -16,13 +17,20 @@ const Home: NextPage<{map:MapData,players:Player[]}> = ({map,players}) => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main className={styles.container}>
-        <Board mapData={map}></Board>
-        <div>
-        {
-        players.map(p => <Man key={p.id} x={p.x} y={p.y} player={p.id}></Man>)
-        }
+        <div className={styles.center}>
+          <Board mapData={map}></Board>
+          <div>
+              {players.map(p => <Man key={p.id} x={p.x} y={p.y} player={p.id}></Man>)}
+          </div>
         </div>
-        
+        <PlayerView 
+          meta={{displayName:"hoge",id:1}} 
+          cards={[
+            {id: "1",type:"Curved",number:3},
+            {id: "2",type:"Straight",number:2},
+            {id: "3",type:"Straight",number:7}
+          ]} 
+        />
       </main>
     </div>
   )

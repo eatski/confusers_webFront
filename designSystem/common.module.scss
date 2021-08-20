@@ -29,7 +29,9 @@ $_sizes : (
 
 $_colors : (
     black:#333333,
-    white: #ffffff
+    white: #ffffff,
+    "black-light": #999999,
+    overwrap: rgba(#ffffff,0.2)
 );
 
 $playerColors : (
