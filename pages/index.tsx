@@ -17,20 +17,50 @@ const Home: NextPage<{map:MapData,players:Player[]}> = ({map,players}) => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main className={styles.container}>
+      <div>
+          <PlayerView 
+            meta={{displayName:"hoge",id:0}} 
+            cards={[
+              {id: "1",type:"Curved",number:3},
+              {id: "2",type:"Hidden",number:2},
+              {id: "3",type:"Straight",number:7}
+            ]} 
+          />
+          <PlayerView 
+            meta={{displayName:"fuga",id:1}} 
+            cards={[
+              {id: "1",type:"Curved",number:3},
+              {id: "2",type:"Straight",number:2},
+              {id: "3",type:"Straight",number:7}
+            ]} 
+          />
+        </div>
         <div className={styles.center}>
           <Board mapData={map}></Board>
           <div>
               {players.map(p => <Man key={p.id} x={p.x} y={p.y} player={p.id}></Man>)}
           </div>
         </div>
-        <PlayerView 
-          meta={{displayName:"hoge",id:1}} 
-          cards={[
-            {id: "1",type:"Curved",number:3},
-            {id: "2",type:"Straight",number:2},
-            {id: "3",type:"Straight",number:7}
-          ]} 
-        />
+        <div>
+          <PlayerView 
+            meta={{displayName:"fuga",id:2}} 
+            cards={[
+              {id: "1",type:"Curved",number:3},
+              {id: "2",type:"Straight",number:2},
+              {id: "3",type:"Straight",number:7}
+            ]} 
+          />
+          <PlayerView 
+            meta={{displayName:"hoge",id:3}} 
+            cards={[
+              {id: "1",type:"Curved",number:3},
+              {id: "2",type:"Straight",number:2},
+              {id: "3",type:"Straight",number:7}
+            ]} 
+          />
+        </div>
+        
+        
       </main>
     </div>
   )

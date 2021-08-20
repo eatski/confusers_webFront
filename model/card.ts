@@ -1,4 +1,4 @@
-export type CardType = "Curved" | "Straight";
+export type CardType = "Curved" | "Straight" | "Hidden";
 
 export type CardModel = {
     id: string,

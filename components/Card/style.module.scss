@@ -1,11 +1,20 @@
 @import "../../designSystem/common.module.scss";
 
+@mixin hw {
+    width: 120px;
+    height: 40px;
+}
+
+.hiddenCard {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    @include hw;
+    border: 1px solid color(black);
+    border-radius: 4px;
+}
 .container {
     position: relative;
-    @mixin hw {
-        width: 120px;
-        height: 40px;
-    }
     &:hover::before {
         position: absolute;
         content: "";

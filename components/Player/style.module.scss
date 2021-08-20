@@ -10,7 +10,6 @@
     dt {
         width: 100%;
         height: 36px;
-        background-color: pink;
         color: white;
         font-size: 24px;
         font-weight: normal;
@@ -28,6 +27,14 @@
         > * + * {
             margin-top: $marginTop;
         }   
+    }
+}
+
+@each $key,$color in $playerColors {
+    .container[data-player="#{$key}"] { 
+        dt { 
+            background-color: map-get($color, light);
+        }
     }
 }
 

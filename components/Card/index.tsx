@@ -3,12 +3,19 @@ import { CardModel, CardType } from "../../model/card";
 import styles from "./style.module.scss"
 
 export const Card: React.FC<CardModel> = ({type,number}) => {
+    if(type === "Hidden"){
+        return <HiddenCard></HiddenCard>
+    }
     const Arrow = typeToComponent[type];
     return <div className={styles.container}>
         <Arrow></Arrow>
         <div>{number}</div>
     </div>
 }
+
+const HiddenCard : React.FC = () => <div className={styles.hiddenCard}>
+    ?
+</div>
 
 
 const ArrowCurved = () => 
@@ -24,7 +31,7 @@ const ArrowStraight = () =>
         <path d="M40 4L48 12L40 20V4Z" />
     </svg>
 
-const typeToComponent : Record<CardType,() => JSX.Element> = {
+const typeToComponent : Record<Exclude<CardType,"Hidden">,() => JSX.Element> = {
     "Curved": ArrowCurved,
     "Straight": ArrowStraight
 }
