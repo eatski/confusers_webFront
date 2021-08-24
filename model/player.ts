@@ -1,10 +1,11 @@
-export type Player = {
+export type PlayerModel = {
     x:number,
     y:number,
     id:number
 }
 
 export type PlayerMeta = {
-    id:number,
-    displayName: string
+    code:number,
+    displayName: string,
+    you: boolean
 }

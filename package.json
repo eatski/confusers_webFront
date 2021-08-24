@@ -10,6 +10,9 @@
   },
   "dependencies": {
     "destyle.css": "^2.0.2",
+    "firebase": "^8.10.0",
+    "fp-ts": "^2.11.1",
+    "io-ts": "^2.2.16",
     "lodash-es": "^4.17.21",
     "next": "11.1.0",
     "next-transpile-modules": "^8.0.0",

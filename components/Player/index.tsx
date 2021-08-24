@@ -10,7 +10,7 @@ export type PlayerProps = {
 }
 
 export const Player: React.FC<PlayerProps> = ({meta,cards}) => {
-    return <div className={styles.container} data-player={meta.id}>
+    return <div className={styles.container} data-player={meta.code}>
         <dl className={styles.container}>
             <dt><span>{meta.displayName}</span></dt>
             <dd>
