@@ -1,26 +1,18 @@
 import { useEffect, useState } from "react";
 import { MeetingProps } from "../../components/Meeting";
-import { syncMeetingPlayers, registerMeetingPlayer } from "../../data/players";
-import { getYourId, saveYourId } from "../../data/you";
-import { log } from "../../logger";
+import { getMeetingPlayerDAO } from "../../data/meetingPlayer";
 import { PLAYERS_NUM } from "../../model/player";
-
 
 export const useMeeting = (): MeetingProps => {
     const [state,setState] = useState<MeetingProps>({
         status:"Fetching"
     })
     useEffect(() => {
-        const roomId = new URLSearchParams(window.location.search).get("room");
-        if(!(typeof roomId === "string")){
-            log("roomid missing")
-            setState({
-                status:"Error"
-            })
-            return;
+        const meetingPlayerDao = getMeetingPlayerDAO();
+        const leave = async () => {
+            meetingPlayerDao.deletePlayer();
         }
-        const yourId = getYourId();
-        const onInput = async (name: string) => {
+        const register = async (name: string) => {
             setState(prev => {
                 switch (prev.status) {
                     case "Fetched":
@@ -37,57 +29,32 @@ export const useMeeting = (): MeetingProps => {
                         };
                 }
             })
-            const result = await registerMeetingPlayer(roomId,{
+            const result = await meetingPlayerDao.registerMeetingPlayer({
                 name,
                 registeredAt: Date.now()
             });
-            if(result.success){
-                saveYourId(result.id);
-                setState(prev => {
-                    switch (prev.status) {
-                        case "Fetched": 
-                            return {
-                                status: "Fetched",
-                                players:prev.players,
-                                form: {
-                                    status: "Joined"
-                                }
-                            }
-                        default:
-                            return {
-                                status: "Error"
-                            };
-                    }
+            if(!result.success){
+                setState({
+                    status: "Error"
                 })
             }
         }
-        return syncMeetingPlayers(
-            roomId,
-            yourId,
+        return meetingPlayerDao.syncMeetingPlayers(
             (players) => {
                 const joined = !!players.find(e => e.you);
                 const over = players.length >= PLAYERS_NUM
-                setState(prev => {
-                    switch (prev.status) {
-                        case "Fetched":
-                        case "Fetching":
-                            return {
-                                status: "Fetched",
-                                players,
-                                form: joined ? {
-                                    status:"Joined"
-                                } : over ? {
-                                    status: "Over"
-                                } : prev.status === "Fetched" ? prev.form : {
-                                    status: "Inputable",
-                                    onInput
-                                }
-                    
-                            }
-                        default:
-                            return {
-                                status: "Error"
-                            }
+                console.log(joined,over)
+                setState({
+                    status: "Fetched",
+                    players,
+                    form: joined ? {
+                        status:"Joined",
+                        leave
+                    } : over ? {
+                        status: "Over"
+                    } : {
+                        status: "Inputable",
+                        onInput: register
                     }
                 })
             },

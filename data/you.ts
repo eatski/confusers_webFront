@@ -1,7 +1,31 @@
-export const saveYourId = (yourId: string) => {
-    window.localStorage.setItem("playerId",yourId);
+export const saveYourId = (yourId: string,roomId: string) => {
+    window.localStorage.setItem(`${roomId}-playerId`,yourId);
 }
 
-export const getYourId = ():string | null => {
-    return window.localStorage.getItem("playerId");
+export const getYourId = (roomId: string):string | null => {
+    return window.localStorage.getItem(`${roomId}-playerId`);
+}
+
+export const delYourId = (roomId: string) => {
+    window.localStorage.removeItem(`${roomId}-playerId`);
+}
+
+export interface YourIdDao {
+    save(yourId: string) : void,
+    get(): string | null,
+    delete(): void
+}
+
+export class YourIdDaoImpl implements YourIdDao{
+    constructor(private roomId: string){}
+    save(yourId: string): void {
+        window.localStorage.setItem(`${this.roomId}-playerId`,yourId);
+    }
+    get(): string | null {
+        return window.localStorage.getItem(`${this.roomId}-playerId`);
+    }
+    delete(): void {
+        window.localStorage.removeItem(`${this.roomId}-playerId`);
+    }
+
 }

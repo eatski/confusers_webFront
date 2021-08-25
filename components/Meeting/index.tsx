@@ -20,7 +20,8 @@ export type FormState = {
 } | {
     status: "Over"
 } | {
-    status: "Joined"
+    status: "Joined",
+    leave: () => void
 }
 
 const Players = ({players}:{players:MeetingPlayer[]})  => players.length ? <ul>
@@ -32,7 +33,7 @@ const Players = ({players}:{players:MeetingPlayer[]})  => players.length ? <ul>
 
 const RegisterForm : React.FC<{onSubmit:(name:string) => void}> = ({onSubmit}) => {
     const [state,setState] = useState("");
-    const onClink =  () => {
+    const onClink = () => {
         onSubmit(state)
         setState("");
     }
@@ -43,12 +44,14 @@ const RegisterForm : React.FC<{onSubmit:(name:string) => void}> = ({onSubmit}) =
 }
 
 export const Meeting: React.FC<MeetingProps> = (props:MeetingProps) => {
+    console.log(props);
     switch (props.status) {
         case "Fetching":
             return <div>Loading</div>;
         case "Fetched":
             return <div>
                     <Players players={props.players}></Players>
+                    {props.form.status === "Joined" && <button onClick={props.form.leave}>Leave</button>}
                     {props.form.status === "Inputable" && <RegisterForm onSubmit={props.form.onInput}></RegisterForm>}
                     {props.form.status === "Over" && <div>定員オーバー</div>}
                     {props.form.status === "Registering" && <div>登録中</div>}
