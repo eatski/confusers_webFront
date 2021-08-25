@@ -1,31 +1,61 @@
 import React, { useState } from "react";
-import { PlayerMeta } from "../../model/player";
+import { MeetingPlayer,PLAYERS_NUM } from "../../model/player";
 import styles from "./style.module.scss"
 
 export type MeetingProps = {
-    joined: true,
-    players:PlayerMeta[]
+    status: "Fetched",
+    players:MeetingPlayer[]
+    form: FormState
 } | {
-    joined: false,
-    players:PlayerMeta[],
-    onJoin: (name:string) => void
+    status: "Fetching",
+} | {
+    status: "Error"
+} 
+
+export type FormState = {
+    status: "Inputable",
+    onInput : (name:string) => void,
+} | {
+    status: "Registering"
+} | {
+    status: "Over"
+} | {
+    status: "Joined"
 }
 
+const Players = ({players}:{players:MeetingPlayer[]})  => players.length ? <ul>
+    {players.map(player => <li key={player.id}>
+        <span>{player.displayName}</span>
+        {player.you && <span>←You</span>}
+    </li>)}
+</ul> : <div>No Player</div>
 
-const Players = ({players}:{players:PlayerMeta[]})  => <ul>
-    {players.map(player => <li key={player.code}>{player.displayName}</li>)}
-</ul>
-export const Meeting: React.FC<MeetingProps> = (props) => {
-    const [state,setState] = useState<string>("")
+const RegisterForm : React.FC<{onSubmit:(name:string) => void}> = ({onSubmit}) => {
+    const [state,setState] = useState("");
+    const onClink =  () => {
+        onSubmit(state)
+        setState("");
+    }
     return <div>
-        <Players players={props.players}></Players>
-        {props.joined || 
-            <div>
-                <input onChange={(e) => setState(e.target.value)} value={state}></input>
-                <button onClick={() => props.onJoin(state)}>Join</button>
-            </div>
-        }
-        
+        <input onChange={(e) => setState(e.target.value)} value={state}></input>
+        <button onClick={onClink}>Join</button>
     </div>
+}
+
+export const Meeting: React.FC<MeetingProps> = (props:MeetingProps) => {
+    switch (props.status) {
+        case "Fetching":
+            return <div>Loading</div>;
+        case "Fetched":
+            return <div>
+                    <Players players={props.players}></Players>
+                    {props.form.status === "Inputable" && <RegisterForm onSubmit={props.form.onInput}></RegisterForm>}
+                    {props.form.status === "Over" && <div>定員オーバー</div>}
+                    {props.form.status === "Registering" && <div>登録中</div>}
+                </div>
+        case "Error":
+            return <div>Error</div>
+
+    }
 }
 

@@ -1,4 +1,4 @@
-import { getStore } from "../../infra/firestore";
+import { getStore } from "../../data/firestore";
 import { useRouter } from 'next/router'
 
 export type LandingState = {

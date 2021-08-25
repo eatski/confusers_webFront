@@ -1,87 +1,104 @@
-import * as t from "io-ts";
-import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { MeetingProps } from "../../components/Meeting";
-import { getStore } from "../../infra/firestore";
-import { PlayerMeta } from "../../model/player";
+import { syncMeetingPlayers, registerMeetingPlayer } from "../../data/players";
+import { getYourId, saveYourId } from "../../data/you";
+import { log } from "../../logger";
+import { PLAYERS_NUM } from "../../model/player";
 
-const MeetingIO = t.type({
-    phase: t.literal("Meeting"),
-    players: t.array(t.type({
-        code: t.number,
-        id: t.string,
-        displayName: t.string
-    }))
-})
 
-export type MeetingState = {
-    status: "Fetched",
-    props: MeetingProps
-} | {
-    status: "Loading",
-} | {
-    status: "Error"
-}
-
-export const useMeeting = (): MeetingState => {
-    const router = useRouter();
-    const [state,setState] = useState<MeetingState>({
-        status:"Loading"
+export const useMeeting = (): MeetingProps => {
+    const [state,setState] = useState<MeetingProps>({
+        status:"Fetching"
     })
     useEffect(() => {
-        const roomId = router.query["room"];
+        const roomId = new URLSearchParams(window.location.search).get("room");
         if(!(typeof roomId === "string")){
+            log("roomid missing")
             setState({
                 status:"Error"
             })
             return;
         }
-        const store = getStore();
-        const yourId = window.localStorage.getItem("yourid");
-        const roomRef = store.collection("rooms").doc(roomId);
-        roomRef.get().then(room => {
-            const io = room.data();
-            const decoded = MeetingIO.decode(io);
-            setState(() => {
-                if(decoded._tag === "Right"){
-                    const data = decoded.right;
-                    const you = typeof yourId === "string" ? data.players.find(p => p.id === yourId)?.code : null
-                    if(you === undefined){
-                        return {
-                            status:"Error"
-                        }
-                    }
-                    const players : PlayerMeta[]= data.players.map(player => ({
-                        code:player.code,
-                        displayName: player.displayName,
-                        you: player.id === yourId
-                    }))
-                    if(you === null){
+        const yourId = getYourId();
+        const onInput = async (name: string) => {
+            setState(prev => {
+                switch (prev.status) {
+                    case "Fetched":
                         return {
                             status: "Fetched",
-                            props:{
-                                players,
-                                joined:false,
-                                onJoin(name) {
-                                    console.log(name)
-                                }
+                            players: prev.players,
+                            form: {
+                                status:"Registering"
                             }
                         }
-                    } 
-                    return {
-                        status: "Fetched",
-                        props:{
-                            players,
-                            joined:true
-                        }
-                    }
-                }
-                return {
-                    status:"Error"
+                    default:
+                        return {
+                            status: "Error"
+                        };
                 }
             })
-        })
-    },[router.query])
+            const result = await registerMeetingPlayer(roomId,{
+                name,
+                registeredAt: Date.now()
+            });
+            if(result.success){
+                saveYourId(result.id);
+                setState(prev => {
+                    switch (prev.status) {
+                        case "Fetched": 
+                            return {
+                                status: "Fetched",
+                                players:prev.players,
+                                form: {
+                                    status: "Joined"
+                                }
+                            }
+                        default:
+                            return {
+                                status: "Error"
+                            };
+                    }
+                })
+            }
+        }
+        return syncMeetingPlayers(
+            roomId,
+            yourId,
+            (players) => {
+                const joined = !!players.find(e => e.you);
+                const over = players.length >= PLAYERS_NUM
+                setState(prev => {
+                    switch (prev.status) {
+                        case "Fetched":
+                        case "Fetching":
+                            return {
+                                status: "Fetched",
+                                players,
+                                form: joined ? {
+                                    status:"Joined"
+                                } : over ? {
+                                    status: "Over"
+                                } : prev.status === "Fetched" ? prev.form : {
+                                    status: "Inputable",
+                                    onInput
+                                }
+                    
+                            }
+                        default:
+                            return {
+                                status: "Error"
+                            }
+                    }
+                })
+            },
+            () => {
+                setState({
+                    status:"Error"
+                })
+            }
+        )
+        
+    },[])
     
     return state
 }
