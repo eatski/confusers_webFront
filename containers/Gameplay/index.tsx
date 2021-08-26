@@ -1,2 +1,7 @@
 import React from "react";
-export const GamePlayContainer = () => <div>gameplay</div>
+import { GamePlay } from "../../components/Gameplay";
+import { useGamePlay } from "./hooks";
+export const GamePlayContainer = () => {
+    const state = useGamePlay();
+    return <GamePlay {...state}></GamePlay>
+}

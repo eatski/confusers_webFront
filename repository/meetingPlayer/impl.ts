@@ -1,5 +1,5 @@
 import * as t from "io-ts";
-import { MeetingPlayer, PLAYERS_NUM } from "../../model/player";
+import { MeetingPlayer, PlayersList, PLAYERS_NUM } from "../../model/player";
 import firebase from "firebase";
 import { getStore } from "../../database/firestore";
 import { log } from "../../logger";
@@ -22,6 +22,25 @@ type RegisterResult = {
 } | {
     success: false,
     cause: "UNEXPECTED_ERROR" | "OVER_CAPACITY"
+}
+
+const dataToModel = (fetched:firebase.firestore.QuerySnapshot<firebase.firestore.DocumentData>,yourId: string | null):PlayersList => {
+    return new PlayersList(fetched.docs.map<MeetingPlayer>(e => {
+        const io = e.data();
+        const decoded = PlayerOutputIO.decode(io);
+        if(decoded._tag === "Left"){
+            log(decoded.left.join(","));
+            throw decoded.left;
+        }
+        const data  = decoded.right;
+        return {
+            id:e.id,
+            displayName: data.name,
+            registeredAt: data.registeredAt,
+            you: yourId === e.id,
+            host: data.host
+        }
+    }));
 }
 
 export class MeetingPlayerRepository {
@@ -51,31 +70,16 @@ export class MeetingPlayerRepository {
         return res;
     }
     public syncMeetingPlayers(
-        listener:(players: MeetingPlayer[]) => void,
+        listener:(players: PlayersList) => void,
         onError: () => void
     ) {
         const store = getStore();
         const roomDoc = store.collection("rooms").doc(this.roomId);
-        const playersCol = roomDoc.collection("players").orderBy("registeredAt")
+        const playersCol = roomDoc.collection("players").orderBy("registeredAt");
         const onFetched = ((fetched : firebase.firestore.QuerySnapshot<firebase.firestore.DocumentData>)=> {
             try {
                 const yourId = this.yourIdDao.get();
-                const players = fetched.docs.map<MeetingPlayer>(e => {
-                    const io = e.data();
-                    const decoded = PlayerOutputIO.decode(io);
-                    if(decoded._tag === "Left"){
-                        throw decoded.left;
-                    }
-                    const data  = decoded.right;
-                    return {
-                        id:e.id,
-                        displayName: data.name,
-                        registeredAt: data.registeredAt,
-                        you: yourId === e.id,
-                        host: data.host
-                    }
-                })
-                listener(players);
+                listener(dataToModel(fetched,yourId));
             } catch (error) {
                 log(error);
                 onError();
@@ -96,4 +100,12 @@ export class MeetingPlayerRepository {
         await playersCol.doc(yourId).delete();
         this.yourIdDao.delete();
     }
+
+    public async getPlayers(): Promise<PlayersList> {
+        const store = getStore();
+        const roomDoc = store.collection("rooms").doc(this.roomId);
+        const playersCol = roomDoc.collection("players").orderBy("registeredAt");
+        const data = await playersCol.get()
+        return dataToModel(data,this.yourIdDao.get());
+    }   
 }

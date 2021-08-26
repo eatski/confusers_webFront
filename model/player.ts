@@ -1,13 +1,30 @@
-export type PlayerModel = {
+export type ManModel = {
     x:number,
     y:number,
-    id:number
+    code:number
 }
 
-export type PlayerMeta = {
+export type GamePlayer = {
     code:number,
     displayName: string,
     you: boolean
+}
+
+export class PlayersList {
+    constructor(private inner:MeetingPlayer[]){}
+    getAll() {
+        return this.inner;
+    }
+    isHost() {
+        return !!this.inner.find(e => e.you && e.host)
+    }
+    isJoined(){
+        return !!this.inner.find(e => e.you)
+    }
+    isOver() {
+        return this.inner.length >= PLAYERS_NUM;
+    }
+
 }
 
 export type MeetingPlayer = {

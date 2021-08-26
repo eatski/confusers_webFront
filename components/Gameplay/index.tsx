@@ -1,59 +1,77 @@
 import React from "react";
 import { MapData } from "../../model/mapData";
-import { PlayerModel } from "../../model/player";
+import { GamePlayer, ManModel } from "../../model/player";
 import { Board } from "../Board";
 import { Man } from "../Man";
 import { Player } from "../Player";
 import styles from "./style.module.scss"
 
 export type GamePlayProps = {
-    players: PlayerModel[],
-    map: MapData
+  status: "Playing",
+  men: ManModel[],
+  map: MapData,
+  players: {
+    meta: GamePlayer,
+  }[]
+} | {
+  status: "Loading"
+} | {
+  status: "Error"
 }
 
-export const GamePlay : React.FC<GamePlayProps> = ({players,map}) => {
-    return <main className={styles.container}>
-    <div>
-        <Player 
-          meta={{displayName:"hoge",code:0,you:false}} 
-          cards={[
-            {id: "1",type:"Curved",number:3},
-            {id: "2",type:"Hidden",number:2},
-            {id: "3",type:"Straight",number:7}
-          ]} 
-        />
-        <Player 
-          meta={{displayName:"fuga",code:1,you:false}} 
-          cards={[
-            {id: "1",type:"Curved",number:3},
-            {id: "2",type:"Straight",number:2},
-            {id: "3",type:"Straight",number:7}
-          ]} 
-        />
-      </div>
-      <div className={styles.center}>
-        <Board mapData={map}></Board>
+export const GamePlay: React.FC<GamePlayProps> = (props) => {
+  switch (props.status) {
+    case "Playing":
+      const {men,map,players} = props
+      return <main className={styles.container}>
         <div>
-            {players.map(p => <Man key={p.id} x={p.x} y={p.y} player={p.id}></Man>)}
+          {players[0] && <Player
+            meta={players[0].meta}
+            cards={[
+              { id: "1", type: "Curved", number: 3 },
+              { id: "2", type: "Hidden", number: 2 },
+              { id: "3", type: "Straight", number: 7 }
+            ]}
+          />}
+          {players[1] && <Player
+            meta={players[1].meta}
+            cards={[
+              { id: "1", type: "Curved", number: 3 },
+              { id: "2", type: "Hidden", number: 2 },
+              { id: "3", type: "Straight", number: 7 }
+            ]}
+          />}
         </div>
-      </div>
-      <div>
-        <Player 
-          meta={{displayName:"fuga",code:2,you:false}} 
-          cards={[
-            {id: "1",type:"Curved",number:3},
-            {id: "2",type:"Straight",number:2},
-            {id: "3",type:"Straight",number:7}
-          ]} 
-        />
-        <Player
-          meta={{displayName:"hoge",code:3,you:false}} 
-          cards={[
-            {id: "1",type:"Curved",number:3},
-            {id: "2",type:"Straight",number:2},
-            {id: "3",type:"Straight",number:7}
-          ]} 
-        />
-      </div>
-    </main>
+        <div className={styles.center}>
+          <Board mapData={map}></Board>
+          <div>
+            {men.map(p => <Man key={p.code} x={p.x} y={p.y} player={p.code}></Man>)}
+          </div>
+        </div>
+        <div>
+          {players[2] && <Player
+            meta={players[2].meta}
+            cards={[
+              { id: "1", type: "Curved", number: 3 },
+              { id: "2", type: "Hidden", number: 2 },
+              { id: "3", type: "Straight", number: 7 }
+            ]}
+          />}
+          {players[3] && <Player
+            meta={players[3].meta}
+            cards={[
+              { id: "1", type: "Curved", number: 3 },
+              { id: "2", type: "Hidden", number: 2 },
+              { id: "3", type: "Straight", number: 7 }
+            ]}
+          />}
+        </div>
+      </main>
+
+    case "Loading":
+      return <div>Loading</div>
+    case "Error":
+      return <div>Error</div>
+  }
+
 }

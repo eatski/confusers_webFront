@@ -1,11 +1,11 @@
 import React from "react";
 import { CardModel } from "../../model/card";
-import { PlayerMeta } from "../../model/player";
+import { GamePlayer } from "../../model/player";
 import { Card } from "../Card";
 import styles from "./style.module.scss"
 
 export type PlayerProps = {
-    meta: PlayerMeta,
+    meta: GamePlayer,
     cards: CardModel[]
 }
 
