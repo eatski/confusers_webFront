@@ -1,18 +1,21 @@
+import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { MeetingProps } from "../../components/Meeting";
 import { getMeetingPlayerDAO } from "../../data/meetingPlayer";
+import { getRoomId } from "../../data/room";
 import { PLAYERS_NUM } from "../../model/player";
 
 export const useMeeting = (): MeetingProps => {
     const [state,setState] = useState<MeetingProps>({
         status:"Fetching"
     })
+    const router = useRouter();
     useEffect(() => {
         const meetingPlayerDao = getMeetingPlayerDAO();
         const leave = async () => {
             meetingPlayerDao.deletePlayer();
         }
-        const register = async (name: string) => {
+        const join = async (name: string) => {
             setState(prev => {
                 switch (prev.status) {
                     case "Fetched":
@@ -31,7 +34,7 @@ export const useMeeting = (): MeetingProps => {
             })
             const result = await meetingPlayerDao.registerMeetingPlayer({
                 name,
-                registeredAt: Date.now()
+                host:false
             });
             if(!result.success){
                 setState({
@@ -42,19 +45,27 @@ export const useMeeting = (): MeetingProps => {
         return meetingPlayerDao.syncMeetingPlayers(
             (players) => {
                 const joined = !!players.find(e => e.you);
-                const over = players.length >= PLAYERS_NUM
-                console.log(joined,over)
+                const over = players.length >= PLAYERS_NUM;
+                const host = !!players.find(e => e.you && e.host);
                 setState({
                     status: "Fetched",
                     players,
-                    form: joined ? {
+                    form: host ? {
+                        status: "Joined_As_Host",
+                        start(){
+                            router.push(`/gameplay?room=${getRoomId()}`)
+                        },
+                        dissolution() {
+                            alert("TODO: impl");
+                        }
+                    } : joined ? {
                         status:"Joined",
                         leave
                     } : over ? {
                         status: "Over"
                     } : {
                         status: "Inputable",
-                        onInput: register
+                        join
                     }
                 })
             },

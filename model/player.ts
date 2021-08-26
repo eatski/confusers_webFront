@@ -14,7 +14,8 @@ export type MeetingPlayer = {
     id:string,
     displayName: string,
     you: boolean,
-    registeredAt: number
+    registeredAt: number,
+    host:boolean
 }
 
 export const PLAYERS_NUM = 4;

@@ -5,12 +5,16 @@ import { getStore } from "../firestore";
 import { log } from "../../logger";
 import { YourIdDao } from "../you";
 
-const PlayerIO = t.type({
+const PlayerInputIO = t.type({
     name:t.string,
-    registeredAt: t.number
+    host: t.boolean
 });
 
-type Player = t.TypeOf<typeof PlayerIO>;
+const PlayerOutputIO = t.intersection([PlayerInputIO,t.type({
+    registeredAt: t.number,
+})])
+
+type PlayerInput = t.TypeOf<typeof PlayerInputIO>;
 
 type RegisterResult = {
     success: true,
@@ -22,27 +26,28 @@ type RegisterResult = {
 
 export class MeetingPlayerDAO {
     constructor(private yourIdDao:YourIdDao,private roomId: string){};
-    public async registerMeetingPlayer(player:Player):Promise<RegisterResult>{
+    public async registerMeetingPlayer(player:PlayerInput):Promise<RegisterResult>{
         const store = getStore();
         const roomDoc = store.collection("rooms").doc(this.roomId);
         const playersCol = roomDoc.collection("players");
-        const res = await store.runTransaction<RegisterResult>(async t => {
+        const res = await store.runTransaction<RegisterResult>(async (t) => {
             if((await playersCol.get()).size < PLAYERS_NUM){
-                const newPlayer = playersCol.doc();
-                t.set(newPlayer,player);
+                const doc = playersCol.doc();
+                await t.set(doc,{
+                    ...player,
+                    registeredAt:Date.now()
+                });
+                this.yourIdDao.save(doc.id)
                 return {
                     success:true,
-                    id: newPlayer.id
+                    id: doc.id
                 }
             }
             return {
                 success:false,
                 cause: "OVER_CAPACITY"
             }
-        }).catch<RegisterResult>(() => ({success:false,cause:"UNEXPECTED_ERROR"}))
-        if(res.success){
-            this.yourIdDao.save(res.id);
-        }
+        }).catch<RegisterResult>(() => ({success:false,cause:"UNEXPECTED_ERROR"}));
         return res;
     }
     public syncMeetingPlayers(
@@ -57,7 +62,7 @@ export class MeetingPlayerDAO {
                 const yourId = this.yourIdDao.get();
                 const players = fetched.docs.map<MeetingPlayer>(e => {
                     const io = e.data();
-                    const decoded = PlayerIO.decode(io);
+                    const decoded = PlayerOutputIO.decode(io);
                     if(decoded._tag === "Left"){
                         throw decoded.left;
                     }
@@ -67,6 +72,7 @@ export class MeetingPlayerDAO {
                         displayName: data.name,
                         registeredAt: data.registeredAt,
                         you: yourId === e.id,
+                        host: data.host
                     }
                 })
                 listener(players);

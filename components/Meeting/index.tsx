@@ -14,14 +14,18 @@ export type MeetingProps = {
 
 export type FormState = {
     status: "Inputable",
-    onInput : (name:string) => void,
+    join : (name:string) => void,
 } | {
     status: "Registering"
 } | {
     status: "Over"
 } | {
     status: "Joined",
-    leave: () => void
+    leave: () => void,
+} | {
+    status: "Joined_As_Host",
+    dissolution: () => void,
+    start: () => void
 }
 
 const Players = ({players}:{players:MeetingPlayer[]})  => players.length ? <ul>
@@ -44,7 +48,6 @@ const RegisterForm : React.FC<{onSubmit:(name:string) => void}> = ({onSubmit}) =
 }
 
 export const Meeting: React.FC<MeetingProps> = (props:MeetingProps) => {
-    console.log(props);
     switch (props.status) {
         case "Fetching":
             return <div>Loading</div>;
@@ -52,9 +55,10 @@ export const Meeting: React.FC<MeetingProps> = (props:MeetingProps) => {
             return <div>
                     <Players players={props.players}></Players>
                     {props.form.status === "Joined" && <button onClick={props.form.leave}>Leave</button>}
-                    {props.form.status === "Inputable" && <RegisterForm onSubmit={props.form.onInput}></RegisterForm>}
+                    {props.form.status === "Inputable" && <RegisterForm onSubmit={props.form.join}></RegisterForm>}
                     {props.form.status === "Over" && <div>定員オーバー</div>}
                     {props.form.status === "Registering" && <div>登録中</div>}
+                    {props.form.status === "Joined_As_Host" && <button onClick={props.form.start}>Start</button>}
                 </div>
         case "Error":
             return <div>Error</div>

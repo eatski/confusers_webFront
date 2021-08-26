@@ -1,15 +1,3 @@
-export const saveYourId = (yourId: string,roomId: string) => {
-    window.localStorage.setItem(`${roomId}-playerId`,yourId);
-}
-
-export const getYourId = (roomId: string):string | null => {
-    return window.localStorage.getItem(`${roomId}-playerId`);
-}
-
-export const delYourId = (roomId: string) => {
-    window.localStorage.removeItem(`${roomId}-playerId`);
-}
-
 export interface YourIdDao {
     save(yourId: string) : void,
     get(): string | null,
