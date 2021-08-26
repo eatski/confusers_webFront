@@ -1,9 +1,9 @@
 import * as t from "io-ts";
 import { MeetingPlayer, PLAYERS_NUM } from "../../model/player";
 import firebase from "firebase";
-import { getStore } from "../firestore";
+import { getStore } from "../../database/firestore";
 import { log } from "../../logger";
-import { YourIdDao } from "../you";
+import { YourIdClient } from "../../clientData/you";
 
 const PlayerInputIO = t.type({
     name:t.string,
@@ -24,8 +24,8 @@ type RegisterResult = {
     cause: "UNEXPECTED_ERROR" | "OVER_CAPACITY"
 }
 
-export class MeetingPlayerDAO {
-    constructor(private yourIdDao:YourIdDao,private roomId: string){};
+export class MeetingPlayerRepository {
+    constructor(private yourIdDao:YourIdClient,private roomId: string){};
     public async registerMeetingPlayer(player:PlayerInput):Promise<RegisterResult>{
         const store = getStore();
         const roomDoc = store.collection("rooms").doc(this.roomId);

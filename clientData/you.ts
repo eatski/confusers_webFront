@@ -1,10 +1,10 @@
-export interface YourIdDao {
+export interface YourIdClient {
     save(yourId: string) : void,
     get(): string | null,
     delete(): void
 }
 
-export class YourIdDaoImpl implements YourIdDao{
+export class YourIdClientImpl implements YourIdClient{
     constructor(private roomId: string){}
     save(yourId: string): void {
         window.localStorage.setItem(`${this.roomId}-playerId`,yourId);
