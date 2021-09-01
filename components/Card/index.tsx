@@ -1,5 +1,5 @@
 import React from "react";
-import { CardModel, CardType } from "../../model/card";
+import { CardModel, CardType } from "../../model/types";
 import styles from "./style.module.scss"
 
 export const Card: React.FC<CardModel> = ({type,number}) => {

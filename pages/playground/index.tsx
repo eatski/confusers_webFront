@@ -2,10 +2,10 @@ import type { GetServerSideProps, NextPage } from 'next'
 import Head from 'next/head'
 import React from 'react'
 import { GamePlay } from '../../components/Gameplay'
-import { createMap,MapData} from "../../model/mapData"
-import { ManModel } from '../../model/player'
+import { createMap,MapData} from "../../model/map"
+import { Token } from '../../model/player'
 
-const Home: NextPage<{map:MapData,players:ManModel[]}> = ({map,players}) => {
+const Home: NextPage<{map:MapData,players:Token[]}> = ({map,players}) => {
   return (
     <div>
       <Head>

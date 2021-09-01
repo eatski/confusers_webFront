@@ -2,10 +2,11 @@ import { useEffect, useState } from "react";
 import { getRoomId } from "../../clientData/room";
 import { YourIdClientImpl } from "../../clientData/you";
 import { GamePlayProps } from "../../components/Gameplay";
-import { createMap } from "../../model/mapData";
-import { GamePlayer } from "../../model/player";
-import { getGamePlayRepository } from "../../repository/game";
+import { logic } from "../../model/store";
+import { createStore } from "../../libs/gameStore";
 import { getMeetingPlayerRepository } from "../../repository/meetingPlayer";
+import { getRecordRepository } from "../../repository/record";
+import { CardModel } from "../../model/types";
 
 export const useGamePlay = (): GamePlayProps => {
     const [state, setState] = useState<GamePlayProps>({
@@ -18,47 +19,45 @@ export const useGamePlay = (): GamePlayProps => {
             throw new Error("No Your Id")
         }
         const meetingPlayerRepo = getMeetingPlayerRepository();
-        const gameRepo = getGamePlayRepository();
-        (async () => {
-            const players = await meetingPlayerRepo.getPlayers();
-            if (players.isHost()) {
-                const gamePlayers = players.getAll().map((p,i) => ({code: i,displayName:p.displayName,id:p.id}))
-                gameRepo.dispatch({
-                    type: "Init",
-                    value: {
-                        players: gamePlayers,
-                        map: createMap(),
-                        men: gamePlayers.map((p,i) => ({x:i,y:i,code: p.code}))
-                    }
-                })
-            }
-        })()
-        return gameRepo.syncActions((actions) => {
-            actions.forEach(action => {
-                switch (action.type) {
-                    case "Init":
-                        setState({
-                            status: "Playing",
-                            map: action.value.map,
-                            players: action.value.players.map<{meta:GamePlayer}>((p) => {
-                                return {
-                                    meta: {
-                                        code: p.code,
-                                        displayName: p.displayName,
-                                        you: p.id === yourId
+        const recordRepo = getRecordRepository();
+        const store = createStore(
+            logic,
+            (_command ,_result ,state) => {
+                switch (state.type) {
+                    case "STANDBY":
+                        meetingPlayerRepo.getPlayers().then(players => {
+                            if (players.isHost()) {
+                                const gamePlayers = players.getAll().map((p,i) => ({code: i,displayName:p.displayName,id:p.id}))
+                                store.dispatch({
+                                    type:"START",
+                                    value: {
+                                        players: gamePlayers
                                     }
-                                }
-                            }),
-                            men: action.value.men
+                                })
+                            }
                         })
                         return;
+                    case "PLAYING":
+                        const cards : CardModel[]= [
+                            { id: "1", type: "Curved", number: 3 },
+                            { id: "2", type: "Hidden", number: 2 },
+                            { id: "3", type: "Straight", number: 7 }
+                        ] 
+                        setState({
+                            status:"Playing",
+                            map:state.map,
+                            players:state.players.map(p => ({you: p.id === yourId,cards,player:p})),
+                            tokens: state.tokens
+                        })
+                        return 
                 }
-            })
-        }, () => {
-            setState({
-                status: "Error"
-            })
-        })
+            },
+            recordRepo
+        );
+        
+        return () => {
+            store.removeListener();
+        }
     }, [])
 
     return state;

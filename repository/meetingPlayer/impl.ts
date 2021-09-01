@@ -1,5 +1,5 @@
 import * as t from "io-ts";
-import { MeetingPlayer, PlayersList, PLAYERS_NUM } from "../../model/player";
+import { MeetingPlayer, PlayersList, PLAYERS_NUM } from "../../model/types";
 import firebase from "firebase";
 import { getStore } from "../../database/firestore";
 import { log } from "../../logger";

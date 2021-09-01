@@ -1,7 +1,8 @@
-.row {
-    display: flex;
-}
-
+$height : shrinkedSize(48);
+$width: size(48);
 .board {
     position: relative;
+    display: grid;
+    grid-template-rows: height;
+    grid-template-columns: $width;
 }
