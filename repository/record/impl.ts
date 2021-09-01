@@ -6,6 +6,7 @@ const SEQ_NO_KEY = "__seqNo"
 export class RecordRepositoryImpl implements RecordRepository<MyRecord>{
     constructor(private roomId: string){}
     async add({command,result}: MyRecord){
+        console.log("add",{command,result});
         const store = getStore();
         const recordsRef = store.collection("rooms").doc(this.roomId).collection("records");
         await store.runTransaction(async t => {
@@ -18,20 +19,24 @@ export class RecordRepositoryImpl implements RecordRepository<MyRecord>{
             })
         })
     }
-    listen(listener: (record: MyRecord) => void) {
+    sync(listener: (records: MyRecord[]) => void) {
         const store = getStore();
-        const recordsRef = store.collection("rooms").doc(this.roomId).collection("records");
-        return recordsRef.orderBy(SEQ_NO_KEY).onSnapshot(snapshot => {
-            snapshot.docChanges().forEach(e => {
+        const recordsRef = store
+            .collection("rooms")
+            .doc(this.roomId)
+            .collection("records")
+            .orderBy(SEQ_NO_KEY);
+        return recordsRef.onSnapshot(snapshot => {
+            const records = snapshot.docChanges().map(e => {
                 if(e.type !== "added"){
                     throw new Error("Invalid Command")
                 }
                 //FXIME: type
                 const data = e.doc.data()
-                const {command,result} = {command: JSON.parse(data.command),result:JSON.parse(data.result)} as MyRecord;
+                return {command: JSON.parse(data.command),result:JSON.parse(data.result)} as MyRecord;
  
-                listener({command,result})
             })
+            listener(records);
         })
     }
 

@@ -20,7 +20,7 @@ const Home: NextPage<{map:MapData,players:Token[]}> = ({map,players}) => {
           {meta:{displayName:"piyo",code:2,you:false}},
           {meta:{displayName:"hage",code:3,you:false}},
         ]} 
-        status="Playing" map={map} men={players}></GamePlay>
+        status="Playing" map={map} tokens={players}></GamePlay>
     </div>
   )
 }

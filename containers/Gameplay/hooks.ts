@@ -22,12 +22,15 @@ export const useGamePlay = (): GamePlayProps => {
         const recordRepo = getRecordRepository();
         const store = createStore(
             logic,
-            (_command ,_result ,state) => {
+            (_ ,state) => {
+                console.log(state);
                 switch (state.type) {
                     case "STANDBY":
                         meetingPlayerRepo.getPlayers().then(players => {
                             if (players.isHost()) {
-                                const gamePlayers = players.getAll().map((p,i) => ({code: i,displayName:p.displayName,id:p.id}))
+                                const gamePlayers = players
+                                    .getAll()
+                                    .map((p,i) => ({code: i,displayName:p.displayName,id:p.id}))
                                 store.dispatch({
                                     type:"START",
                                     value: {
