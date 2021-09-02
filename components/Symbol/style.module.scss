@@ -1,0 +1,29 @@
+@import "../../designSystem/common.module.scss";
+
+.container {
+    height: 100%;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    .frame {
+        height: shrinkedSize(36);
+        width: size(36);
+        box-sizing: border-box;
+        border: 3px solid color(black);
+        border-radius: 4px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+
+        .icon {
+            height: shrinkedSize(24);
+            width: size(24);
+            path {
+                fill: color(black)
+            }
+        }
+    }
+    
+}
+

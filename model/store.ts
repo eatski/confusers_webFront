@@ -1,5 +1,5 @@
 import { CommandRecord, StoreLogic } from "../libs/gameStore"
-import { Cell, CellContent, Player, Token } from "./types"
+import { Cell, CellContent, Player, SYMBOLS, SymbolType, Token } from "./types"
 
 type State = {
     type: "STANDBY"
@@ -30,19 +30,70 @@ export type Result = {
         tokens: Token[]
     }
 }
-const STARTING_ISLANDS = [{x:5,y:5},{x:5,y:6},{x:6,y:5},{x:6,y:6}]
-const MAP_SIZE = [...Array(12)].map((_,i) => i);
+type Address = {x:number,y:number}
+const STARTING_ISLANDS : Address []= [{x:6,y:6},{x:7,y:6},{x:6,y:7},{x:7,y:7}];
+
+const rnd = (num:number) =>  Math.floor(Math.random() * num);
+const pickRnd = <T>(array:T[]):[T,T[]] => {
+    const pickedIndex = rnd(array.length);
+    const picked = array[pickedIndex];
+    if(!picked){
+        throw new Error("Never")
+    }
+    const newArray = array.filter((_,i) => i !== pickedIndex);
+    return [picked,newArray]
+}
+
 const createMap = ():Cell[] => {
-    return MAP_SIZE.reduce<Cell[]>((acc,x) => {
-        return MAP_SIZE.reduce<Cell[]>((acc,y) => {
-            const content : CellContent = STARTING_ISLANDS.find(e => e.x === x && e.y === y) ? {
-                type: "ISLAND",
-            } : {
-                type: "SEA"
+    const MAP_SIZE = [...Array(14)].map((_,i) => i);
+    const addresses : Address[] = MAP_SIZE.reduce<Address[]>((acc,x) => MAP_SIZE.reduce<Address[]>((acc,y) => [...acc,{x,y}],acc),[])
+    const allowedProximityNum = 4;
+    const isAllowedProximity = (a:Address,b:Address):boolean => {
+    return (Math.abs(a.x - b.x) + Math.abs(a.y - b.y)) > allowedProximityNum
+}
+    //FIXME: Shuffle??
+    const [_,symbols] = SYMBOLS.reduce<[Address[],[SymbolType,Address][]]>(([addresses,acc],cur) => {
+        const [picked,left] = pickRnd(addresses);
+        const removed = left.filter(
+            e => isAllowedProximity(e,picked)
+        )
+        return [removed,[...acc,[cur,picked]]]
+    },[
+        addresses.filter((address) => !STARTING_ISLANDS.some(start => !isAllowedProximity(address,start))),
+        []
+    ]);
+    
+
+    return addresses.map<Cell>(({x,y}) => {
+        if(STARTING_ISLANDS.some(e => e.x === x && e.y === y)){
+            return {
+                x,
+                y,
+                content:{
+                    type:"ISLAND"
+                }
             }
-            return [...acc,{x,y,content}]
-        },acc)
-    },[])
+        }
+        const symbolResult = symbols.find(([_,e]) => e.x === x && e.y === y);
+        if(symbolResult){
+            const [symbol] = symbolResult;
+            return {
+                x,
+                y,
+                content:{
+                    type:"SYMBOL",
+                    symbol
+                }
+            }
+        }
+        return {
+            x,
+                y,
+                content:{
+                    type:"SEA"
+                }
+        }
+    })
 }
 
 const invalidType : () => never = () => {

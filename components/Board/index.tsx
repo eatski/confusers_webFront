@@ -2,6 +2,7 @@ import React from "react";
 import { CellContent, Map } from "../../model/types";
 import { Island } from "../Island";
 import { Sea } from "../Sea";
+import { SymbolCell } from "../Symbol";
 import styles from "./style.module.scss"
 
 export type BoardProps = {map: Map}
@@ -12,6 +13,8 @@ const CellContentView : React.FC<CellContent>= (content) => {
             return <Island></Island>
         case "SEA":
             return <Sea></Sea>
+        case "SYMBOL":
+            return <SymbolCell symbol={content.symbol}></SymbolCell>
     }
 }
 

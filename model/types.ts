@@ -51,7 +51,24 @@ export type CellContent = {
     type: "ISLAND"
 } | {
     type: "SEA"
-} 
+} | {
+    type: "SYMBOL",
+    symbol: SymbolType
+}
+
+export const SYMBOLS = [
+    "Quadrupedal",
+    "Home",
+    "Skull",
+    "Tree",
+    "Crown",
+    "Gem",
+    "Book",
+    "Liquor",
+] as const
+
+
+export type SymbolType = (typeof SYMBOLS)[number]
 
 export type Player = {
     id: string,
