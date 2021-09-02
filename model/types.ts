@@ -4,11 +4,16 @@ export type Token = {
     code:number
 }
 
-export type CardType = "Curved" | "Straight" | "Hidden";
-
-export type CardModel = {
+export type Card = {
     id: string,
-    type: CardType,
+    body: CardBody
+}
+
+export type CardBody = {
+    type: "Curved",
+    number: [number,number]
+} | {
+    type: "Straight",
     number: number
 }
 

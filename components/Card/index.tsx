@@ -1,37 +1,48 @@
 import React from "react";
-import { CardModel, CardType } from "../../model/types";
+import { Card } from "../../model/types";
 import styles from "./style.module.scss"
 
-export const Card: React.FC<CardModel> = ({type,number}) => {
-    if(type === "Hidden"){
-        return <HiddenCard></HiddenCard>
-    }
-    const Arrow = typeToComponent[type];
-    return <div className={styles.container}>
-        <Arrow></Arrow>
-        <div>{number}</div>
-    </div>
+export type CardViewProps = Card & {
+    code: number,
+    hidden: boolean
 }
 
-const HiddenCard : React.FC = () => <div className={styles.hiddenCard}>
-    ?
-</div>
-
+export const CardView: React.FC<CardViewProps> = ({body}) => {
+    switch (body.type) {
+        case "Straight":
+            return <div className={styles.container}>
+                <div className={styles.left}>
+                    <ArrowStraight></ArrowStraight>
+                </div>
+                <div className={styles.right}>
+                    <div className={styles.straightNumContainer}>{body.number}</div>
+                </div>
+            </div>
+        case "Curved":
+            return <div className={styles.container}>
+                <div className={styles.left}>
+                    <ArrowCurved></ArrowCurved>
+                </div>
+                <div className={styles.right}>
+                    <div className={styles.curveNumContainerLeft}>{body.number[0]}</div>
+                    <div className={styles.curveNumContainerRight}>{body.number[1]}</div>
+                </div>
+            </div>
+    }
+    
+}
 
 const ArrowCurved = () => 
-    <svg xmlns="http://www.w3.org/2000/svg">
-        <path d="M16 10H40V18H22V18C18.6863 18 16 15.3137 16 12V10Z" />
-        <path d="M0 2H12H18C21.3137 2 24 4.68629 24 8V10H0V2Z"/>
-        <path d="M40 6L48 14L40 22V6Z"/>
+    <svg fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M0 10H28V16H7H6C2.68629 16 0 13.3137 0 10Z" fill="#CCCCCC"/>
+        <path d="M28 4L36 12L28 20V4Z" fill="#CCCCCC"/>
+        <path d="M8 0H0V10H8V0Z" fill="#CCCCCC"/>
     </svg>
+
+
 
 const ArrowStraight = () => 
-    <svg xmlns="http://www.w3.org/2000/svg">
-        <path d="M0 8H40V16H0V8Z" />
-        <path d="M40 4L48 12L40 20V4Z" />
+    <svg fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M0 6H28V14H0V6Z" fill="#CCCCCC"/>
+        <path d="M28 2L36 10L28 18V2Z" fill="#CCCCCC"/>
     </svg>
-
-const typeToComponent : Record<Exclude<CardType,"Hidden">,() => JSX.Element> = {
-    "Curved": ArrowCurved,
-    "Straight": ArrowStraight
-}

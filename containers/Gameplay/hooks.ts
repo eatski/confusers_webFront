@@ -6,7 +6,7 @@ import { logic } from "../../model/store";
 import { createStore } from "../../libs/gameStore";
 import { getMeetingPlayerRepository } from "../../repository/meetingPlayer";
 import { getRecordRepository } from "../../repository/record";
-import { CardModel } from "../../model/types";
+import { PlayerPanelProps } from "../../components/Player";
 
 export const useGamePlay = (): GamePlayProps => {
     const [state, setState] = useState<GamePlayProps>({
@@ -41,15 +41,12 @@ export const useGamePlay = (): GamePlayProps => {
                         })
                         return;
                     case "PLAYING":
-                        const cards : CardModel[]= [
-                            { id: "1", type: "Curved", number: 3 },
-                            { id: "2", type: "Hidden", number: 2 },
-                            { id: "3", type: "Straight", number: 7 }
-                        ] 
+                        const playerPanels = 
+                        state.players.map<PlayerPanelProps>(p => ({you: p.base.id === yourId,cards:p.cards,player:p.base}))
                         setState({
                             status:"Playing",
                             map:state.map,
-                            players:state.players.map(p => ({you: p.id === yourId,cards,player:p})),
+                            players:playerPanels,
                             tokens: state.tokens
                         })
                         return 

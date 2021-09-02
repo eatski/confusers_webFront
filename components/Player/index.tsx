@@ -1,20 +1,20 @@
 import React from "react";
-import { CardModel, Player } from "../../model/types";
-import { Card } from "../Card";
+import { Card, Player } from "../../model/types";
+import { CardView } from "../Card";
 import styles from "./style.module.scss"
 
 export type PlayerPanelProps = {
     you: boolean,
     player: Player,
-    cards: CardModel[]
+    cards: Card[]
 }
 
-export const PlayerPanel: React.FC<PlayerPanelProps> = ({player,cards}) => {
+export const PlayerPanel: React.FC<PlayerPanelProps> = ({player,cards,you}) => {
     return <div className={styles.container} data-player={player.code}>
         <dl className={styles.container}>
             <dt><span>{player.displayName}</span></dt>
             <dd>
-                {cards.map(({type,number,id}) => <Card key={id} id={id} type={type} number={number}/>)}
+                {cards.map((card) => <CardView key={card.id} {...card} hidden={!you} code={player.code}/>)}
             </dd>
         </dl>
     </div>

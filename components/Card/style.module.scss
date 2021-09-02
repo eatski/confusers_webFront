@@ -21,21 +21,55 @@
         @include hw;
         background-color: color(overwrap);
     }
-
     @include hw;
-    border: 1px solid color(black);
+    border: 2px solid color(black);
     border-radius: 4px;
     display: flex;
     align-items: center;
-    div {
-        font-size: 24px;
-        margin-left: auto;
-        margin-right: 16px;
+
+    .right {
+        position: relative;
+        width: 40%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        @mixin numberContainer($size,$fontSize,$color) {
+            background-color: $color;
+            width: $size;
+            height: $size;
+            font-size: $fontSize;
+            color: color(white);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .straightNumContainer {
+            @include numberContainer(size(28),size(24),red)
+        }
+        .curveNumContainerLeft {
+            position: relative;
+            z-index: 1;
+            left: adjust(2);
+            @include numberContainer(size(24),size(20),red)
+        }
+        .curveNumContainerRight {
+            position: relative;
+            right: adjust(2);
+            z-index: 0;
+            @include numberContainer(size(24),size(20),pink)
+        }
     }
-    svg {
-        margin-left: 16px;
-        height: 24px;
-        width: 48px;
-        fill: color(black-light);
+
+    .left {
+        width: 60%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        svg {
+            fill: color(black-light);
+            width: size(36);
+            height: size(20);
+        }
     }
 }

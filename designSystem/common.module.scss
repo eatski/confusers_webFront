@@ -13,6 +13,8 @@ $_sizes : (
     56: 56px
 );
 
+
+
 @function size($key) {
     @if map-has-key($_sizes, $key) {
         @return map-get($_sizes, $key);
@@ -26,6 +28,20 @@ $_sizes : (
     }
     @error "no key"
 };
+
+$_adjustment : (
+    2 : 2px,
+    4 : 4px,
+    6 : 6px
+);
+
+@function adjust($key) {
+    @if map-has-key($_adjustment, $key) {
+        @return map-get($_adjustment, $key);
+    }
+    @error "no key"
+};
+
 
 $_colors : (
     black:#333333,
