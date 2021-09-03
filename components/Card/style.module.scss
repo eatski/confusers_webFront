@@ -1,20 +1,23 @@
 @import "../../designSystem/common.module.scss";
 
 @mixin hw {
-    width: 120px;
-    height: 40px;
+    width: size(160);
+    height: size(56);
 }
 
-.hiddenCard {
+.hidden {
     display: flex;
     align-items: center;
     justify-content: center;
     @include hw;
-    border: 1px solid color(black);
+    border: 2px solid color(black-light);
     border-radius: 4px;
+    font-size: size(40);
+    color: color(black-light);
 }
 .container {
     position: relative;
+    cursor: pointer;
     &:hover::before {
         position: absolute;
         content: "";
@@ -25,16 +28,13 @@
     border: 2px solid color(black);
     border-radius: 4px;
     display: flex;
-    align-items: center;
-
     .right {
         position: relative;
-        width: 40%;
+        flex-grow: 1;
         display: flex;
-        align-items: center;
         justify-content: center;
-        @mixin numberContainer($size,$fontSize,$color) {
-            background-color: $color;
+        align-items: center;
+        @mixin numberContainer($size,$fontSize) {
             width: $size;
             height: $size;
             font-size: $fontSize;
@@ -45,31 +45,46 @@
             justify-content: center;
         }
         .straightNumContainer {
-            @include numberContainer(size(28),size(24),red)
+            @include numberContainer(size(40),size(36))
         }
         .curveNumContainerLeft {
-            position: relative;
-            z-index: 1;
-            left: adjust(2);
-            @include numberContainer(size(24),size(20),red)
+            position: absolute;
+            z-index: -1;
+            left: - adjust(2);
+            top: adjust(2);
+            @include numberContainer(size(36),size(28));
         }
         .curveNumContainerRight {
-            position: relative;
-            right: adjust(2);
-            z-index: 0;
-            @include numberContainer(size(24),size(20),pink)
+            position: absolute;
+            z-index: -2;
+            right: 0;
+            bottom: adjust(2);
+            @include numberContainer(size(36),size(28))
         }
     }
-
     .left {
-        width: 60%;
+        width: size(96);
         display: flex;
         align-items: center;
         justify-content: center;
         svg {
             fill: color(black-light);
-            width: size(36);
-            height: size(20);
+        }
+    }
+}
+
+@each $key,$color in $playerColors {
+    .container[data-player="#{$key}"] { 
+        .right {
+            .straightNumContainer {
+                background-color: map-get($color, primary);
+            }
+            .curveNumContainerLeft {
+                background-color: map-get($color, primary);
+            }
+            .curveNumContainerRight {
+                background-color: map-get($color, light);
+            }
         }
     }
 }

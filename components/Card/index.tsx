@@ -7,10 +7,13 @@ export type CardViewProps = Card & {
     hidden: boolean
 }
 
-export const CardView: React.FC<CardViewProps> = ({body}) => {
+export const CardView: React.FC<CardViewProps> = ({body,code,hidden}) => {
+    if(hidden){
+        return <div className={styles.hidden}>?</div>
+    }
     switch (body.type) {
         case "Straight":
-            return <div className={styles.container}>
+            return <div className={styles.container} data-player={code}>
                 <div className={styles.left}>
                     <ArrowStraight></ArrowStraight>
                 </div>
@@ -19,7 +22,7 @@ export const CardView: React.FC<CardViewProps> = ({body}) => {
                 </div>
             </div>
         case "Curved":
-            return <div className={styles.container}>
+            return <div className={styles.container} data-player={code}>
                 <div className={styles.left}>
                     <ArrowCurved></ArrowCurved>
                 </div>
@@ -32,17 +35,19 @@ export const CardView: React.FC<CardViewProps> = ({body}) => {
     
 }
 
+//FIXME: あとで描き直す
 const ArrowCurved = () => 
-    <svg fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M0 10H28V16H7H6C2.68629 16 0 13.3137 0 10Z" fill="#CCCCCC"/>
-        <path d="M28 4L36 12L28 20V4Z" fill="#CCCCCC"/>
-        <path d="M8 0H0V10H8V0Z" fill="#CCCCCC"/>
+    <svg width="84" height="44" viewBox="0 0 84 44" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M0 21H66V33H12C5.37258 33 0 27.6274 0 21Z" fill="#CCCCCC"/>
+        <path d="M66 8L84 26L66 44V8Z" fill="#CCCCCC"/>
+        <path d="M0 9H14V21H0V9Z" fill="#CCCCCC"/>
     </svg>
 
-
-
+//FIXME: あとで描き直す
 const ArrowStraight = () => 
-    <svg fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M0 6H28V14H0V6Z" fill="#CCCCCC"/>
-        <path d="M28 2L36 10L28 18V2Z" fill="#CCCCCC"/>
+    <svg width="84" height="44" viewBox="0 0 84 44" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M0 15H66V29H0V15Z" fill="#CCCCCC"/>
+        <path d="M66 4L84 22L66 40V4Z" fill="#CCCCCC"/>
     </svg>
+
+
