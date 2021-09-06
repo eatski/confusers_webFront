@@ -23,10 +23,16 @@
     }
     dd {
         $marginTop: 8px;
+        position: relative;
         margin-top: $marginTop;
         > * + * {
             margin-top: $marginTop;
-        }   
+        }
+        .cardContainer {
+            transition-property: top,left;
+            transition-duration: 500ms;
+            position: absolute;
+        }
     }
 }
 
