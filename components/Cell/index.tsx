@@ -1,7 +1,7 @@
 
 import styles from "./style.module.scss"
-export const Cell : React.FC = ({children}) => {
-    return <div className={styles.container}>
+export const Cell : React.FC<{onClick?:()=> void}> = ({children,onClick}) => {
+    return <div className={styles.container} onClick={onClick}>
         {children}
     </div>
 }

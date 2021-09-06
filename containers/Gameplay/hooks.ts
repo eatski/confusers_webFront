@@ -98,7 +98,12 @@ export const useGamePlay = (): GamePlayProps => {
                         })
                         setState({
                             status:"Playing",
-                            map:gameState.map,
+                            map:gameState.map.map(e => ({
+                                ...e,
+                                select(){
+                                    alert("TODO");
+                                }
+                            })),
                             players:playerPanels,
                             tokens: gameState.tokens
                         })

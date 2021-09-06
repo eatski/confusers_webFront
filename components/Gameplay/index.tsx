@@ -1,7 +1,7 @@
 import React from "react";
 import { Map } from "../../model/types";
 import { Token } from "../../model/types";
-import { Board } from "../Board";
+import { Board, BoardItemProps } from "../Board";
 import { DestinationProps, Man, TokenVirtual } from "../Man";
 import { PlayerPanel, PlayerPanelProps } from "../Player";
 import styles from "./style.module.scss"
@@ -9,7 +9,7 @@ import styles from "./style.module.scss"
 export type GamePlayProps = {
   status: "Playing",
   tokens: Token[],
-  map: Map,
+  map: BoardItemProps[],
   players: PlayerPanelProps[],
   destinations?: DestinationProps[]
 } | {
