@@ -3,7 +3,6 @@ import { useEffect, useState } from "react";
 import { MeetingProps } from "../../components/Meeting";
 import { getMeetingPlayerRepository } from "../../repository/meetingPlayer";
 import { getRoomId } from "../../clientData/room";
-import { PLAYERS_NUM } from "../../model/player";
 import { getRoomRepository } from "../../repository/room";
 
 export const useMeeting = (): MeetingProps => {
