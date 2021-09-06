@@ -1,12 +1,12 @@
 import React from "react";
-import { Card, Player } from "../../model/types";
-import { CardView } from "../Card";
+import { Player } from "../../model/types";
+import { CardView, CardViewProps } from "../Card";
 import styles from "./style.module.scss"
 
 export type PlayerPanelProps = {
     you: boolean,
     player: Player,
-    cards: Card[]
+    cards: CardViewProps[]
 }
 
 export const PlayerPanel: React.FC<PlayerPanelProps> = ({player,cards,you}) => {
@@ -14,7 +14,7 @@ export const PlayerPanel: React.FC<PlayerPanelProps> = ({player,cards,you}) => {
         <dl className={styles.container}>
             <dt><span>{player.displayName}</span></dt>
             <dd>
-                {cards.map((card) => <CardView key={card.id} {...card} hidden={!you} code={player.code}/>)}
+                {cards.map((props) => <CardView key={props.id} {...props}/>)}
             </dd>
         </dl>
     </div>

@@ -16,13 +16,15 @@
     color: color(black-light);
 }
 .container {
-    position: relative;
-    cursor: pointer;
-    &:hover::before {
-        position: absolute;
-        content: "";
-        @include hw;
-        background-color: color(overwrap);
+    &[data-clickable]{
+        position: relative;
+        cursor: pointer;
+        &:hover::before {
+            position: absolute;
+            content: "";
+            @include hw;
+            background-color: color(overwrap);
+        }
     }
     @include hw;
     border: 2px solid color(black);

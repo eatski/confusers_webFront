@@ -9,13 +9,30 @@ export type Card = {
     body: CardBody
 }
 
+export type Curved = "Curved";
+export type Straight = "Straight";
+
 export type CardBody = {
-    type: "Curved",
+    type: Curved,
     number: [number,number]
 } | {
-    type: "Straight",
+    type: Straight,
     number: number
 }
+
+export type CardUse = {
+    type: Curved,
+    direction: [Direction,Direction]
+} | {
+    type: Straight,
+    direction: Direction
+}
+
+export type Address = {x:number,y:number}
+
+
+export const DIRECTIONS = ["X+" , "X-" , "Y+" , "Y-"] as const
+export type Direction = typeof DIRECTIONS[number]
 
 export class PlayersList {
     constructor(private inner:MeetingPlayer[]){}

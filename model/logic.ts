@@ -1,4 +1,4 @@
-import { CardBody, Cell, SYMBOLS, SymbolType } from "./types";
+import { Address, CardBody, CardUse, Cell, Direction, DIRECTIONS, SYMBOLS, SymbolType } from "./types";
 
 const rnd = (num:number) =>  Math.floor(Math.random() * num);
 const pickRnd = <T>(array:T[]):[T,T[]] => {
@@ -11,7 +11,6 @@ const pickRnd = <T>(array:T[]):[T,T[]] => {
     return [picked,newArray]
 }
 
-type Address = {x:number,y:number}
 export const STARTING_ISLANDS : Address []= [{x:6,y:6},{x:7,y:6},{x:6,y:7},{x:7,y:7}];
 const allowedProximityNum = 4;
 export const createMap = ():Cell[] => {
@@ -82,4 +81,57 @@ export const pickCard = ():CardBody => {
     const cards = createCards();
     const [card] = pickRnd(cards);
     return card;
+}
+
+export const move = (current: Address,direction:Direction,number: number): Address => {
+    const dirToXY : Record<Direction,Address>= {
+        "X+": {x:1,y:0},
+        "X-": {x: -1,y: 0},
+        "Y+": {x: 0,y: 1},
+        "Y-": {x:0,y:-1}
+    }
+
+    const xy = dirToXY[direction];
+    return {
+        x: current.x + xy.x * number,
+        y: current.y + xy.y * number,
+    }
+}
+
+export const getAvailableDestinations = (card: CardBody): CardUse[] => {
+
+    const opposeDirection : Record<Direction,Direction>  ={
+        "X+":"X-",
+        "X-": "X+",
+        "Y+": "Y-",
+        "Y-": "Y+"
+    }
+
+    switch (card.type) {
+        case "Straight":
+            return DIRECTIONS.map<CardUse>(direction => ({type:"Straight",direction}))
+        case "Curved":
+            return DIRECTIONS.reduce<CardUse[]>(
+                (acc,dir1) => DIRECTIONS
+                    .filter(dir2 => dir1 !== dir2 && dir1 !== opposeDirection[dir2])
+                    .reduce<CardUse[]>((acc,dir2) => {
+                        const use: CardUse = {
+                            type:"Curved",
+                            direction: [dir1,dir2]
+                        }
+                        return [...acc,use]
+                    },acc)
+            ,[]) 
+    }
+}
+
+export const moveWithCard = (use:CardUse,card: CardBody,cur:Address):Address => {
+    if(use.type === "Curved" && card.type === "Curved"){
+        const address1 = move(cur,use.direction[0],card.number[0]);
+        return move(address1,use.direction[1],card.number[1]);
+    }
+    if(use.type === "Straight" && card.type === "Straight"){
+        return move(cur,use.direction,card.number);
+    }
+    throw new Error("不正なカード使用です")
 }

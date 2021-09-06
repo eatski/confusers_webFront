@@ -4,16 +4,17 @@ import styles from "./style.module.scss"
 
 export type CardViewProps = Card & {
     code: number,
-    hidden: boolean
+    hidden: boolean,
+    select?: () => void
 }
 
-export const CardView: React.FC<CardViewProps> = ({body,code,hidden}) => {
+export const CardView: React.FC<CardViewProps> = ({body,code,hidden,select}) => {
     if(hidden){
         return <div className={styles.hidden}>?</div>
     }
     switch (body.type) {
         case "Straight":
-            return <div className={styles.container} data-player={code}>
+            return <div className={styles.container} onClick={select} data-player={code} data-clickable={!!select}>
                 <div className={styles.left}>
                     <ArrowStraight></ArrowStraight>
                 </div>
@@ -22,7 +23,7 @@ export const CardView: React.FC<CardViewProps> = ({body,code,hidden}) => {
                 </div>
             </div>
         case "Curved":
-            return <div className={styles.container} data-player={code}>
+            return <div className={styles.container} onClick={select} data-player={code} data-clickable={!!select}>
                 <div className={styles.left}>
                     <ArrowCurved></ArrowCurved>
                 </div>

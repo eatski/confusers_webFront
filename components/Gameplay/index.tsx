@@ -2,7 +2,7 @@ import React from "react";
 import { Map } from "../../model/types";
 import { Token } from "../../model/types";
 import { Board } from "../Board";
-import { Man } from "../Man";
+import { DestinationProps, Man, TokenVirtual } from "../Man";
 import { PlayerPanel, PlayerPanelProps } from "../Player";
 import styles from "./style.module.scss"
 
@@ -10,12 +10,14 @@ export type GamePlayProps = {
   status: "Playing",
   tokens: Token[],
   map: Map,
-  players: PlayerPanelProps[]
+  players: PlayerPanelProps[],
+  destinations?: DestinationProps[]
 } | {
   status: "Loading"
 } | {
   status: "Error"
 }
+
 
 export const GamePlay: React.FC<GamePlayProps> = (props) => {
   switch (props.status) {
@@ -29,8 +31,11 @@ export const GamePlay: React.FC<GamePlayProps> = (props) => {
         <div className={styles.center}>
           <Board map={map}></Board>
           <div>
-            {tokens.map(p => <Man key={p.code} x={p.x} y={p.y} player={p.code}></Man>)}
+            {tokens.map(token => <Man key={token.code} {...token}></Man>)}
           </div>
+          {
+            props.destinations && <div>{props.destinations.map(des => <TokenVirtual key={des.id} {...des}></TokenVirtual>)}</div> 
+          }
         </div>
         <div>
           {players[2] && <PlayerPanel {...players[2]} />}
