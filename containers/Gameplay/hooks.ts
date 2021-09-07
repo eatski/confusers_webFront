@@ -6,10 +6,7 @@ import { logic } from "../../model/store";
 import { createStore } from "../../libs/gameStore";
 import { getMeetingPlayerRepository } from "../../repository/meetingPlayer";
 import { getRecordRepository } from "../../repository/record";
-import { PlayerPanelProps } from "../../components/Player";
-import { CardViewProps } from "../../components/Card";
-import { getAvailableDestinations, moveWithCard } from "../../model/logic";
-import { DestinationProps } from "../../components/Man";
+import { onPlaying } from "./onPlaying";
 
 export const useGamePlay = (): GamePlayProps => {
     const [state, setState] = useState<GamePlayProps>({
@@ -22,7 +19,6 @@ export const useGamePlay = (): GamePlayProps => {
             throw new Error("No Your Id")
         }
         const meetingPlayerRepo = getMeetingPlayerRepository();
-        const recordRepo = getRecordRepository();
         const store = createStore(
             logic,
             (_ ,gameState) => {
@@ -43,74 +39,10 @@ export const useGamePlay = (): GamePlayProps => {
                         })
                         return;
                     case "PLAYING":
-                        const playerPanels = gameState.players.map<PlayerPanelProps>(p => {
-                            const you = p.base.id === yourId;
-                            //FIXME: モデルにロジック
-                            const token = gameState.tokens.find(token => token.code === p.base.code);
-                            if(!token){
-                                throw new Error("never");
-                            }
-                            return ({
-                                you,
-                                cards:p.cards.map<CardViewProps>(card => ({
-                                    code:p.base.code,
-                                    hidden: !you,
-                                    id: card.id,
-                                    body:card.body,
-                                    select() {
-                                        setState(prev => {
-                                            if(prev.status !== "Playing"){
-                                                throw new Error("Never")
-                                            }
-                                            return {
-                                                ...prev,
-                                                destinations:getAvailableDestinations(card.body)
-                                                    .map<DestinationProps>(use => ({
-                                                        select() {
-                                                            setState(prev => {
-                                                                if(prev.status !== "Playing"){
-                                                                    throw new Error("Never")
-                                                                }
-                                                                return {
-                                                                    ...prev,
-                                                                    destinations: undefined
-                                                                }
-                                                            });
-                                                            store.dispatch({
-                                                                type:"USE_CARD",
-                                                                value: {
-                                                                    player: p.base.code,
-                                                                    card: card.id,
-                                                                    use
-                                                                }
-                                                            })
-                                                        },
-                                                        ...(moveWithCard(use,card.body,token)),
-                                                        code: p.base.code,
-                                                        id: typeof use.direction === "string" ? use.direction : use.direction.join("_")
-                                                }))
-                                            }
-                                        })
-                                    }
-                                })),
-                                player:p.base
-                            })
-                        })
-                        setState({
-                            status:"Playing",
-                            map:gameState.map.map(e => ({
-                                ...e,
-                                select(){
-                                    alert("TODO");
-                                }
-                            })),
-                            players:playerPanels,
-                            tokens: gameState.tokens
-                        })
-                        return 
+                        onPlaying(gameState,setState,store,yourId)
                 }
             },
-            recordRepo
+            getRecordRepository()
         );
         
         return () => {

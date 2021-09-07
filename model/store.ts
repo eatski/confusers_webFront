@@ -3,21 +3,23 @@ import { createMap, moveWithCard, pickCard, STARTING_ISLANDS } from "./logic"
 import { Card, CardUse, Cell, Player, Token } from "./types";
 import {v4 as uuid} from "uuid";
 
-type State = {
+export type GameState = {
     type: "STANDBY"
-} | {
+} | PlayingState
+
+export type PlayingState = {
     type: "PLAYING",
     map: Cell[],
     tokens: Token[],
     players: PlayerStatus[]
 }
 
-type PlayerStatus = {
+export type PlayerStatus = {
     cards: Card[],
     base: Player
 }
 
-export type Command = {
+export type GameCommand = {
     type: "START",
     value: {
         players: Player[]
@@ -31,7 +33,7 @@ export type Command = {
     }
 }
 
-export type Result = {
+export type GameResult = {
     type: "MOVE_TOKEN_WITH_CARD",
     value: {
         player: number,
@@ -52,9 +54,9 @@ const invalidType : () => never = () => {
     throw new Error("invalidType")
 }
 
-export type MyRecord = CommandRecord<Command,Result>
+export type MyRecord = CommandRecord<GameCommand,GameResult>
 
-export const logic : StoreLogic<State,Command,Result> = {
+export const logic : StoreLogic<GameState,GameCommand,GameResult> = {
     initial: {
         type:"STANDBY"
     },
@@ -81,7 +83,7 @@ export const logic : StoreLogic<State,Command,Result> = {
                             }))
                         }
                     })
-                    const result : Result = {
+                    const result : GameResult = {
                         type:"CREATE_BOARD",
                         value: {
                             players: playersStatus,
@@ -110,7 +112,7 @@ export const logic : StoreLogic<State,Command,Result> = {
                     invalidType();
                 }
                 const moveTo = moveWithCard(value.use,card.body,{x:token.x,y:token.y});
-                const result : Result = {
+                const result : GameResult = {
                     type: "MOVE_TOKEN_WITH_CARD",
                     value: {
                         player: value.player,
