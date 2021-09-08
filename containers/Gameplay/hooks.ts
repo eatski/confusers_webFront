@@ -6,12 +6,15 @@ import { logic } from "../../model/store";
 import { createStore } from "../../libs/gameStore";
 import { getMeetingPlayerRepository } from "../../repository/meetingPlayer";
 import { getRecordRepository } from "../../repository/record";
-import { onPlaying } from "./onPlaying";
+import { finalize, ViewState } from "./finalize";
+
+
 
 export const useGamePlay = (): GamePlayProps => {
-    const [state, setState] = useState<GamePlayProps>({
+    const [state, setState] = useState<ViewState>({
         status: "Loading"
-    })
+    });
+
     useEffect(() => {
         const yourIdClient = new YourIdClientImpl(getRoomId());
         const yourId = yourIdClient.get();
@@ -39,7 +42,13 @@ export const useGamePlay = (): GamePlayProps => {
                         })
                         return;
                     case "PLAYING":
-                        onPlaying(gameState,setState,store,yourId)
+                        setState(prev => ({
+                            status: "Fetched",
+                            board: gameState,
+                            yourId,
+                            controller: prev.status === "Fetched" ? prev.controller : {type: "YourTurn"},
+                            store
+                        }))
                 }
             },
             getRecordRepository()
@@ -50,5 +59,6 @@ export const useGamePlay = (): GamePlayProps => {
         }
     }, [])
 
-    return state;
+    return finalize(state,setState);
 }
+

@@ -11,7 +11,7 @@ export type BoardItemProps = {
 } & Cell
 
 export type CellContentProps = {
-    select?: () => void,
+    select: (() => void) | undefined,
 } & CellContent
 
 const CellContentView : React.FC<CellContentProps> = (content) => {

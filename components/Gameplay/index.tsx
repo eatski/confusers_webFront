@@ -11,7 +11,7 @@ export type GamePlayProps = {
   tokens: Token[],
   map: BoardItemProps[],
   players: PlayerPanelProps[],
-  destinations?: DestinationProps[]
+  destinations: DestinationProps[] | null
 } | {
   status: "Loading"
 } | {
