@@ -8,11 +8,10 @@ import { Store } from "../../libs/gameStore";
 import { getAvailableDestinations, moveWithCard } from "../../model/logic";
 import { PlayingState, GameCommand, PlayerStatus } from "../../model/store";
 
-
 export type ViewState = {
     status: "Fetched",
     board: PlayingState,
-    yourId: string, 
+    yourId: string,
     controller: Controller,
     store: Store<GameCommand>
 } | {
@@ -32,42 +31,71 @@ export type Controller = {
 
 
 export const finalize = (
-    state:ViewState,
+    state: ViewState,
     setState: Dispatch<SetStateAction<ViewState>>,
-):GamePlayProps => {
+): GamePlayProps => {
     switch (state.status) {
         case "Fetched":
             const you = state.board.players.find(player => player.base.id === state.yourId);
-            if(!you){
+            if (!you) {
                 throw new Error("Never");
             }
             const token = state.board.tokens.find(token => token.code === you.base.code);
-            if(!token){
+            if (!token) {
                 throw new Error("Never");
             }
-            const map : BoardItemProps[] = 
+            const map: BoardItemProps[] =
                 state.controller.type === "YourTurn" ? state.board.map.map(cell => {
                     return {
                         ...cell,
-                        select(){
-                            alert("TODO");
+                        select() {
+                            state.store.dispatch({
+                                type: "PUT_ISLAND",
+                                value: {
+                                    x:cell.x,
+                                    y:cell.y
+                                }
+                            })
                         }
                     }
                 }) : state.board.map
-            const players : PlayerPanelProps[] = state.board.players.map(
-                playerModelToViewProps(
-                    state.board,setState,state.yourId
-                )
-            );
-            const cardToDestinationProps = (you:PlayerStatus,controller:Controller):DestinationProps[] | null => {
-                if(controller.type === "SelectDestination"){
+            const playerModelToViewProps = (player: PlayerStatus): PlayerPanelProps => {
+                const isYou = player.base.code === you.base.code;
+                return ({
+                    you:isYou,
+                    cards: player.cards.map<CardViewProps>(card => ({
+                        code: player.base.code,
+                        hidden: !isYou,
+                        id: card.id,
+                        body: card.body,
+                        select: !isYou ? undefined : () => {
+                            setState(prev => {
+                                if (prev.status !== "Fetched") {
+                                    throw new Error("Never")
+                                }
+                                return {
+                                    ...prev,
+                                    controller: {
+                                        type: "SelectDestination",
+                                        card: card.id
+                                    }
+                                }
+                            })
+                        }
+                    })),
+                    player: player.base
+                })
+            }
+            const players: PlayerPanelProps[] = state.board.players.map(playerModelToViewProps);
+            const cardToDestinationProps = (you: PlayerStatus, controller: Controller): DestinationProps[] | null => {
+                if (controller.type === "SelectDestination") {
                     const card = you.cards.find(card => card.id === controller.card);
-                    if(!card){
+                    if (!card) {
                         throw new Error("Never");
                     }
                     return getAvailableDestinations(card.body).map<DestinationProps>(use => {
                         return {
-                            async select(){
+                            async select() {
                                 setState(prev => ({
                                     ...prev,
                                     controller: {
@@ -89,8 +117,8 @@ export const finalize = (
                                     }
                                 }))
                             },
-                            ...(moveWithCard(use, card.body,token)),
-                            id: `${card.id}-${typeof use.direction === "string" ? use.direction : use.direction.join("-") }` ,
+                            ...(moveWithCard(use, card.body, token)),
+                            id: `${card.id}-${typeof use.direction === "string" ? use.direction : use.direction.join("-")}`,
                             code: token.code
                         }
                     })
@@ -101,10 +129,10 @@ export const finalize = (
                 status: "Playing",
                 map,
                 tokens: state.board.tokens,
-                players:players,
-                destinations: cardToDestinationProps(you,state.controller)
+                players: players,
+                destinations: cardToDestinationProps(you, state.controller)
             }
-    
+
         case "Loading":
             return state
         case "Error":
@@ -112,38 +140,3 @@ export const finalize = (
     }
 }
 
-const playerModelToViewProps = (
-    gameState: PlayingState,
-    setState: Dispatch<SetStateAction<ViewState>>,
-    yourId: string
-) => (player: PlayerStatus): PlayerPanelProps => {
-    const you = player.base.id === yourId;
-    return ({
-        you,
-        cards: player.cards.map<CardViewProps>(card => ({
-            code: player.base.code,
-            hidden: !you,
-            id: card.id,
-            body: card.body,
-            select: !you ? undefined : () => {
-                setState(prev => {
-                    const token = gameState.tokens.find(token => token.code === player.base.code);
-                    if (!token) {
-                        throw new Error("never");
-                    }
-                    if (prev.status !== "Fetched") {
-                        throw new Error("Never")
-                    }
-                    return {
-                        ...prev,
-                        controller: {
-                            type: "SelectDestination",
-                            card: card.id
-                        }
-                    }
-                })
-            }
-        })),
-        player: player.base
-    })
-}

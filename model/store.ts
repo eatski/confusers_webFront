@@ -1,6 +1,6 @@
 import { CommandRecord, StoreLogic } from "../libs/gameStore"
 import { createMap, moveWithCard, pickCard, STARTING_ISLANDS } from "./logic"
-import { Card, CardUse, Cell, Player, Token } from "./types";
+import { Address, Card, CardUse, Cell, Player, Token } from "./types";
 import {v4 as uuid} from "uuid";
 
 export type GameState = {
@@ -31,6 +31,9 @@ export type GameCommand = {
         card: string,
         use: CardUse
     }
+} | {
+    type: "PUT_ISLAND",
+    value: Address
 }
 
 export type GameResult = {
@@ -48,6 +51,9 @@ export type GameResult = {
         map: Cell[],
         tokens: Token[]
     }
+} | {
+    type: "PUT_ISLAND",
+    value: Address
 }
 
 const invalidType : () => never = () => {
@@ -127,7 +133,13 @@ export const logic : StoreLogic<GameState,GameCommand,GameResult> = {
                         usedCard:value.card
                     }
                 }
-                return result
+                return result;
+
+            case "PUT_ISLAND":
+                return {
+                    type: "PUT_ISLAND",
+                    value: command.value
+                }
 
         }
     },
@@ -160,8 +172,18 @@ export const logic : StoreLogic<GameState,GameCommand,GameResult> = {
                         )
                     }
                 }
-                throw new Error("TODO");
+                invalidType()
 
+            case "PUT_ISLAND":
+                if(prev.type === "PLAYING"){
+                    return {
+                        ...prev,
+                        map: prev.map.map<Cell>(
+                            cell => cell.x === result.value.x && cell.y === result.value.y ? {...cell,content: {type: "ISLAND"}} : cell
+                        )
+                    }
+                }
+                invalidType()
         }
 
     }
