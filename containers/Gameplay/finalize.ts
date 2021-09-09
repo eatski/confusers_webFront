@@ -52,8 +52,8 @@ export const finalize = (
                             state.store.dispatch({
                                 type: "PUT_ISLAND",
                                 value: {
-                                    x:cell.x,
-                                    y:cell.y
+                                    x: cell.x,
+                                    y: cell.y
                                 }
                             })
                         }
@@ -62,28 +62,37 @@ export const finalize = (
             const playerModelToViewProps = (player: PlayerStatus): PlayerPanelProps => {
                 const isYou = player.base.code === you.base.code;
                 return ({
-                    you:isYou,
-                    cards: player.cards.map<CardViewProps>(card => ({
-                        code: player.base.code,
-                        hidden: !isYou,
-                        id: card.id,
-                        body: card.body,
-                        selected: state.controller.type === "SelectDestination" && state.controller.card === card.id,
-                        select: !isYou ? undefined : () => {
-                            setState(prev => {
-                                if (prev.status !== "Fetched") {
-                                    throw new Error("Never")
-                                }
-                                return {
-                                    ...prev,
-                                    controller: {
-                                        type: "SelectDestination",
-                                        card: card.id
+                    you: isYou,
+                    cards: player.cards.map<CardViewProps>(card => {
+                        const selected = state.controller.type === "SelectDestination" && state.controller.card === card.id
+                        return {
+                            code: player.base.code,
+                            hidden: !isYou,
+                            id: card.id,
+                            body: card.body,
+                            selected,
+                            select: !isYou ? undefined : () => {
+                                setState(prev => {
+                                    if (prev.status !== "Fetched") {
+                                        throw new Error("Never")
                                     }
-                                }
-                            })
+                                    return selected ? {
+                                        ...prev,
+                                        controller: {
+                                            type: "YourTurn",
+                                            card: card.id
+                                        }
+                                    }:{
+                                        ...prev,
+                                        controller: {
+                                            type: "SelectDestination",
+                                            card: card.id
+                                        }
+                                    }
+                                })
+                            }
                         }
-                    })),
+                    }),
                     player: player.base
                 })
             }
@@ -95,8 +104,8 @@ export const finalize = (
                     if (!card) {
                         throw new Error("Never");
                     }
-                    return getAvailableDestinations(card.body,state.board.map,token).map<DestinationProps>(({use,next}) => {
-                        console.log({use,next});
+                    return getAvailableDestinations(card.body, state.board.map, token).map<DestinationProps>(({ use, next }) => {
+                        console.log({ use, next });
                         return {
                             async select() {
                                 setState(prev => ({
