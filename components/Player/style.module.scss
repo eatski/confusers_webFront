@@ -29,9 +29,10 @@
             margin-top: $marginTop;
         }
         .cardContainer {
-            transition-property: top,left;
-            transition-duration: 500ms;
-            position: absolute;
+            transition: margin 200ms;
+            &[data-selected=true]{
+                margin-left: size(12);
+            }
         }
     }
 }

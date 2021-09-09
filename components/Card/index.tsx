@@ -15,7 +15,7 @@ export const CardView: React.FC<CardViewProps> = ({body,code,hidden,select,selec
     }
     switch (body.type) {
         case "Straight":
-            return <div className={styles.container} onClick={select} data-selected={selected} data-player={code} data-clickable={!!select}>
+            return <div className={styles.container} onClick={select} data-player={code} data-clickable={!!select}>
                 <div className={styles.left}>
                     <ArrowStraight></ArrowStraight>
                 </div>
@@ -24,7 +24,7 @@ export const CardView: React.FC<CardViewProps> = ({body,code,hidden,select,selec
                 </div>
             </div>
         case "Curved":
-            return <div className={styles.container} onClick={select} data-selected={selected} data-player={code} data-clickable={!!select}>
+            return <div className={styles.container} onClick={select} data-player={code} data-clickable={!!select}>
                 <div className={styles.left}>
                     <ArrowCurved></ArrowCurved>
                 </div>

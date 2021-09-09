@@ -16,8 +16,6 @@
     justify-content: center;
     @include hw;
     @include cardBorder;
-    border: 2px solid color(black2);
-    border-radius: 4px;
     font-size: size(40);
     color: color(black2);
 }
@@ -35,9 +33,6 @@
     }
     @include hw;
     @include cardBorder;
-    &[data-selected=true]{
-        margin-left: size(8);
-    }
     display: flex;
     .right {
         position: relative;

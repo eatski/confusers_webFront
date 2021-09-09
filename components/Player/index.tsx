@@ -9,12 +9,13 @@ export type PlayerPanelProps = {
     cards: CardViewProps[]
 }
 
-export const PlayerPanel: React.FC<PlayerPanelProps> = ({player,cards,you}) => {
+export const PlayerPanel: React.FC<PlayerPanelProps> = ({player,cards}) => {
     return <div className={styles.container} data-player={player.code}>
         <dl className={styles.container}>
             <dt><span>{player.displayName}</span></dt>
             <dd>
-                {cards.map((props) => <CardView key={props.id} {...props}/>)}
+                {cards.map((props) => 
+                    <div className={styles.cardContainer} data-selected={props.selected} key={props.id}><CardView  {...props}/></div>)}
             </dd>
         </dl>
     </div>
