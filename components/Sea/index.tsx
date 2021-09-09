@@ -8,7 +8,7 @@ export type SeaProps = {
 }
 export const Sea : React.FC<SeaProps> = ({select}) => {
     return <Cell>
-        <div className={styles.container} onClick={select}>
+        <div className={styles.container} data-clickable={!!select} onClick={select}>
             <div className={styles.content}></div>
         </div>
     </Cell>

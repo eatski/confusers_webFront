@@ -1,15 +1,25 @@
 @import "../../designSystem/common.module.scss";
 .container {
+    position: relative;
     height: 100%;
     width: 100%;
     display: flex;
     justify-content: center;
     align-items: center;
+    &[data-clickable=true]{
+        cursor: pointer;
+        &:hover {
+            .content {
+                background-color: color(black2);
+            }
+        }
+    }
+    
 }
 
 .content {
     height: shrinkedSize(8);
     width: size(8);
-    background-color: #333333;
+    background-color: color(black);
     border-radius: 50%;
 }
