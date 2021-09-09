@@ -1,4 +1,4 @@
-import { Address, CardBody, CardUse, Cell, Direction, DIRECTIONS, SYMBOLS, SymbolType } from "./types";
+import { Address, CardBody, CardUse, Cell, Direction, DIRECTIONS, SYMBOLS, SymbolType, Token } from "./types";
 
 const rnd = (num: number) => Math.floor(Math.random() * num);
 const pickRnd = <T>(array: T[]): [T, T[]] => {
@@ -100,7 +100,7 @@ type MoveChunk = {
     direction: Direction,
     number: number
 }
-const move = (current: Address, chunks: MoveChunk[], cells: CellsMap): Address | null => {
+const move = (current: Address, chunks: MoveChunk[], cells: CellsMap,tokens: Token[]): Address | null => {
     const simpleMove = (current: Address, direction: Direction): Address => {
         const dirToXY: Record<Direction, Address> = {
             "X+": { x: 1, y: 0 },
@@ -120,7 +120,9 @@ const move = (current: Address, chunks: MoveChunk[], cells: CellsMap): Address |
         if (!cell) {
             return null
         }
-        const stop = cell.content.type === "ISLAND" || cell.content.type === "SYMBOL"
+        const stop = 
+            (cell.content.type === "ISLAND" || cell.content.type === "SYMBOL") 
+            && !tokens.find(token => token.x === cell.x && token.y === cell.y)
         const chunk = chunks[chunkNumber];
         if (!chunk) {
             return stop ? cur : null
@@ -137,7 +139,7 @@ const move = (current: Address, chunks: MoveChunk[], cells: CellsMap): Address |
 }
 
 type AvailableDestinations = { use: CardUse, next: Address }
-export const getAvailableDestinations = (card: CardBody, cells: Cell[], cur: Address): AvailableDestinations[] => {
+export const getAvailableDestinations = (card: CardBody, cells: Cell[], cur: Address,tokens:Token[]): AvailableDestinations[] => {
     const map = toCellsMap(cells);
     const opposeDirection: Record<Direction, Direction> = {
         "X+": "X-",
@@ -152,7 +154,7 @@ export const getAvailableDestinations = (card: CardBody, cells: Cell[], cur: Add
                 const chunks: MoveChunk[] = [
                     { direction: dir,number: card.number}
                 ]
-                const res = move(cur, chunks, map);
+                const res = move(cur, chunks, map ,tokens);
                 if (res) {
                     const use: CardUse = {
                         type: "Straight",
@@ -174,7 +176,7 @@ export const getAvailableDestinations = (card: CardBody, cells: Cell[], cur: Add
                                 { direction: dir1,number: card.number[0]},
                                 { direction: dir2,number: card.number[1]}
                             ]
-                            const res2 = move(cur, chunks, map);
+                            const res2 = move(cur, chunks, map,tokens);
                             if (res2) {
                                 const use: CardUse = {
                                     type: "Curved",
@@ -191,14 +193,14 @@ export const getAvailableDestinations = (card: CardBody, cells: Cell[], cur: Add
     }
 }
 
-export const moveWithCard = (use: CardUse, card: CardBody, cur: Address, cells: Cell[]): Address => {
+export const moveWithCard = (use: CardUse, card: CardBody, cur: Address, cells: Cell[],tokens:Token[]): Address => {
     const map = toCellsMap(cells);
     if (use.type === "Curved" && card.type === "Curved") {
         const chunks: MoveChunk[] = [
             { direction: use.direction[0], number: card.number[0]},
             { direction: use.direction[1], number: card.number[1]}
         ]
-        const result = move(cur, chunks, map);
+        const result = move(cur, chunks, map,tokens);
         if (!result) {
             throw new Error("不正なカード使用です")
         }
@@ -208,7 +210,7 @@ export const moveWithCard = (use: CardUse, card: CardBody, cur: Address, cells: 
         const chunks: MoveChunk[] = [
             { direction: use.direction, number: card.number},
         ]
-        const result = move(cur, chunks, map)
+        const result = move(cur, chunks, map,tokens)
         if (!result) {
             throw new Error("不正なカード使用です")
         }

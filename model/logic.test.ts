@@ -27,13 +27,13 @@ describe(toCellsMap.name, () => {
 
 describe(getAvailableDestinations.name,() => {
     test("Straight",() => {
-        const res1 = getAvailableDestinations({type:"Straight",number:2},cells,{x:2,y:2});
+        const res1 = getAvailableDestinations({type:"Straight",number:2},cells,{x:2,y:2},[]);
         const espected1 : typeof res1 = [{next:{x:0,y:2},use:{type:"Straight",direction:"X-"}}]
         expect(res1).toEqual(espected1);
-        const res2 = getAvailableDestinations({type:"Straight",number:2},cells,{x:0,y:2});
+        const res2 = getAvailableDestinations({type:"Straight",number:2},cells,{x:0,y:2},[]);
         const espected2 : typeof res2 = [{next:{x:2,y:2},use:{type:"Straight",direction:"X+"}}]
         expect(res2).toEqual(espected2);
-        const res3 = getAvailableDestinations({type:"Straight",number:1},cells,{x:0,y:1});
+        const res3 = getAvailableDestinations({type:"Straight",number:1},cells,{x:0,y:1},[]);
         const expected3 : typeof res3 = [
             {next:{x:0,y:2},use:{type:"Straight",direction:"Y+"}},
             {next:{x:0,y:0},use:{type:"Straight",direction:"Y-"}}
@@ -41,12 +41,12 @@ describe(getAvailableDestinations.name,() => {
         expect(res3).toEqual(expected3);
     })
     test("Curved",() => {
-        const res1 = getAvailableDestinations({type:"Curved",number:[1,2]},cells,{x:2,y:2});
+        const res1 = getAvailableDestinations({type:"Curved",number:[1,2]},cells,{x:2,y:2},[]);
         const expected1 : typeof res1 = [
             {next:{x:0,y:1},use:{type:"Curved",direction:["Y-","X-"]}},
         ]
         expect(res1).toEqual(expected1);
-        const res2 = getAvailableDestinations({type:"Curved",number:[2,1]},cells,{x:2,y:2});
+        const res2 = getAvailableDestinations({type:"Curved",number:[2,1]},cells,{x:2,y:2},[]);
         const expected2 : typeof res2 = []
         expect(res2).toEqual(expected2);
     })

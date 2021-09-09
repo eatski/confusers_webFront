@@ -117,7 +117,7 @@ export const logic : StoreLogic<GameState,GameCommand,GameResult> = {
                 if(!token){
                     invalidType();
                 }
-                const moveTo = moveWithCard(value.use,card.body,{x:token.x,y:token.y},prev.map);
+                const moveTo = moveWithCard(value.use,card.body,{x:token.x,y:token.y},prev.map,prev.tokens);
                 const result : GameResult = {
                     type: "MOVE_TOKEN_WITH_CARD",
                     value: {

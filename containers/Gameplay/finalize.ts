@@ -82,7 +82,7 @@ export const finalize = (
                                             type: "YourTurn",
                                             card: card.id
                                         }
-                                    }:{
+                                    } : {
                                         ...prev,
                                         controller: {
                                             type: "SelectDestination",
@@ -104,36 +104,37 @@ export const finalize = (
                     if (!card) {
                         throw new Error("Never");
                     }
-                    return getAvailableDestinations(card.body, state.board.map, token).map<DestinationProps>(({ use, next }) => {
-                        console.log({ use, next });
-                        return {
-                            async select() {
-                                setState(prev => ({
-                                    ...prev,
-                                    controller: {
-                                        type: "StandBy"
-                                    }
-                                }))
-                                await state.store.dispatch({
-                                    type: "USE_CARD",
-                                    value: {
-                                        player: you.base.code,
-                                        card: card.id,
-                                        use
-                                    }
-                                })
-                                setState(prev => ({
-                                    ...prev,
-                                    controller: {
-                                        type: "YourTurn"
-                                    }
-                                }))
-                            },
-                            ...next,
-                            id: `${card.id}-${typeof use.direction === "string" ? use.direction : use.direction.join("-")}`,
-                            code: token.code
-                        }
-                    })
+                    return getAvailableDestinations(card.body, state.board.map, token,state.board.tokens)
+                        .map<DestinationProps>(({ use, next }) => {
+                            console.log({ use, next });
+                            return {
+                                async select() {
+                                    setState(prev => ({
+                                        ...prev,
+                                        controller: {
+                                            type: "StandBy"
+                                        }
+                                    }))
+                                    await state.store.dispatch({
+                                        type: "USE_CARD",
+                                        value: {
+                                            player: you.base.code,
+                                            card: card.id,
+                                            use
+                                        }
+                                    })
+                                    setState(prev => ({
+                                        ...prev,
+                                        controller: {
+                                            type: "YourTurn"
+                                        }
+                                    }))
+                                },
+                                ...next,
+                                id: `${card.id}-${typeof use.direction === "string" ? use.direction : use.direction.join("-")}`,
+                                code: token.code
+                            }
+                        })
                 }
                 return null
             }
