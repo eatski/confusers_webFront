@@ -68,6 +68,7 @@ export const finalize = (
                         hidden: !isYou,
                         id: card.id,
                         body: card.body,
+                        selected: state.controller.type === "SelectDestination" && state.controller.card === card.id,
                         select: !isYou ? undefined : () => {
                             setState(prev => {
                                 if (prev.status !== "Fetched") {

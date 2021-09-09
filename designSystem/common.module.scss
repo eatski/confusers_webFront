@@ -53,30 +53,30 @@ $_adjustment : (
     @error "no key"
 };
 
-
 $_colors : (
-    black:#333333,
     white: #ffffff,
-    "black-light": #999999,
-    overwrap: rgba(#ffffff,0.2)
+    black:#474747,
+    "black2": #777777,
+    "black3": #bbbbbb,
+    overwrap: rgba(#ffffff,0.1)
 );
 
 $playerColors : (
     0: (
-        primary: #FF0033,
-        light: #FF99CC
+        primary: #ff4c4c, //#ff6b6b,
+        light: #fbaac0
     ),
     1: (
-        primary: #0066FF,
+        primary: #0582ff,
         light: #99CCFF
     ),
     2: (
-        primary: #FF9933,
+        primary: #ff9b38,
         light: #FFCC66
     ),
     3: (
-        primary: #339900,
-        light: #66CC33
+        primary: #07c007,
+        light: #70df70
     )
 );
 

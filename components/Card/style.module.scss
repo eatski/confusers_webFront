@@ -5,16 +5,23 @@
     height: size(56);
 }
 
+@mixin cardBorder {
+    border: 2px solid color(black2);
+    border-radius: 6px;
+}
+
 .hidden {
     display: flex;
     align-items: center;
     justify-content: center;
     @include hw;
-    border: 2px solid color(black-light);
+    @include cardBorder;
+    border: 2px solid color(black2);
     border-radius: 4px;
     font-size: size(40);
-    color: color(black-light);
+    color: color(black2);
 }
+
 .container {
     &[data-clickable]{
         position: relative;
@@ -27,8 +34,10 @@
         }
     }
     @include hw;
-    border: 2px solid color(black);
-    border-radius: 4px;
+    @include cardBorder;
+    &[data-selected=true]{
+        margin-left: size(8);
+    }
     display: flex;
     .right {
         position: relative;
@@ -70,7 +79,7 @@
         align-items: center;
         justify-content: center;
         svg {
-            fill: color(black-light);
+            fill: color(black3);
         }
     }
 }
