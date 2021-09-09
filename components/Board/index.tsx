@@ -29,7 +29,7 @@ export const Board : React.FC<BoardProps>= ({map}:BoardProps) => {
     return <div className={styles.board}>
         {map.map(({x,y,content,select}) => <div 
             key={`${x}-${y}`} 
-            style={{gridColumnStart:x,gridColumnEnd:x + 1,gridRowStart: y, gridRowEnd: y + 1}}>
+            style={{gridRowStart: x, gridRowEnd: x + 1,gridColumnStart:y,gridColumnEnd:y + 1}}>
                 <CellContentView select={select} {...content}></CellContentView>
         </div>)}
     </div>

@@ -5,7 +5,7 @@ import { GamePlayProps } from "../../components/Gameplay";
 import { DestinationProps } from "../../components/Man";
 import { PlayerPanelProps } from "../../components/Player";
 import { Store } from "../../libs/gameStore";
-import { getAvailableDestinations, moveWithCard } from "../../model/logic";
+import { getAvailableDestinations } from "../../model/logic";
 import { PlayingState, GameCommand, PlayerStatus } from "../../model/store";
 
 export type ViewState = {
@@ -88,12 +88,14 @@ export const finalize = (
             }
             const players: PlayerPanelProps[] = state.board.players.map(playerModelToViewProps);
             const cardToDestinationProps = (you: PlayerStatus, controller: Controller): DestinationProps[] | null => {
+                console.log(token);
                 if (controller.type === "SelectDestination") {
                     const card = you.cards.find(card => card.id === controller.card);
                     if (!card) {
                         throw new Error("Never");
                     }
-                    return getAvailableDestinations(card.body).map<DestinationProps>(use => {
+                    return getAvailableDestinations(card.body,state.board.map,token).map<DestinationProps>(({use,next}) => {
+                        console.log({use,next});
                         return {
                             async select() {
                                 setState(prev => ({
@@ -102,7 +104,7 @@ export const finalize = (
                                         type: "StandBy"
                                     }
                                 }))
-                                state.store.dispatch({
+                                await state.store.dispatch({
                                     type: "USE_CARD",
                                     value: {
                                         player: you.base.code,
@@ -117,7 +119,7 @@ export const finalize = (
                                     }
                                 }))
                             },
-                            ...(moveWithCard(use, card.body, token)),
+                            ...next,
                             id: `${card.id}-${typeof use.direction === "string" ? use.direction : use.direction.join("-")}`,
                             code: token.code
                         }

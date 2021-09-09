@@ -83,7 +83,7 @@ export const logic : StoreLogic<GameState,GameCommand,GameResult> = {
                     const playersStatus = gamePlayers.map(p => {
                         return {
                             base:p,
-                            cards: [1,2,3].map<Card>((id) => ({
+                            cards: [1,2,3].map<Card>(() => ({
                                 id: uuid(),
                                 body: pickCard()
                             }))
@@ -117,7 +117,7 @@ export const logic : StoreLogic<GameState,GameCommand,GameResult> = {
                 if(!token){
                     invalidType();
                 }
-                const moveTo = moveWithCard(value.use,card.body,{x:token.x,y:token.y});
+                const moveTo = moveWithCard(value.use,card.body,{x:token.x,y:token.y},prev.map);
                 const result : GameResult = {
                     type: "MOVE_TOKEN_WITH_CARD",
                     value: {
