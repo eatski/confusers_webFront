@@ -1,7 +1,6 @@
 import * as t from "io-ts";
 import { getStore } from "../../database/firestore";
 import firebase from "firebase";
-import { Phase } from "../../model/room";
 
 const PhaseIO = t.union([t.literal("Meeting"),t.literal("GamePlay"),t.literal("Dissolution"),]) 
 
@@ -18,7 +17,7 @@ export class RoomRepository {
             phase: "GamePlay"
         })
     }
-    public syncRoomPhase(listener:(phase: Phase) => void,onError : () => void): () => void {
+    public syncRoomPhase(listener:(phase: t.TypeOf<typeof PhaseIO>) => void,onError : () => void): () => void {
         const store = getStore();
         const room = store.collection("rooms").doc(this.roomId);
         const fn = (e:firebase.firestore.DocumentSnapshot<firebase.firestore.DocumentData>) => {

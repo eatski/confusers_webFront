@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { MeetingPlayer,PLAYERS_NUM } from "../../model/player";
+import { MeetingPlayer } from "../../model/types";
 import styles from "./style.module.scss"
 
 export type MeetingProps = {

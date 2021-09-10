@@ -4,8 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
+    "build": "next build && next export",
     "lint": "next lint"
   },
   "dependencies": {
@@ -17,6 +16,7 @@
     "@types/uuid": "^8.3.1",
     "destyle.css": "^2.0.2",
     "firebase": "^8.10.0",
+    "firebase-tools": "^9.18.0",
     "fp-ts": "^2.11.1",
     "io-ts": "^2.2.16",
     "jest": "^27.0.6",
