@@ -49,5 +49,8 @@ describe(getAvailableDestinations.name,() => {
         const res2 = getAvailableDestinations({type:"Curved",number:[2,1]},cells,{x:2,y:2},[]);
         const expected2 : typeof res2 = []
         expect(res2).toEqual(expected2);
+        const res3 = getAvailableDestinations({type:"Curved",number:[1,2]},cells,{x:0,y:1},[{code:0,x:0,y:2}]);
+        const expected3 : typeof res3 = []
+        expect(res3).toEqual(expected3);
     })
 })

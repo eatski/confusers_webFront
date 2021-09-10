@@ -5,7 +5,7 @@ import { GamePlayProps } from "../../components/Gameplay";
 import { DestinationProps } from "../../components/Man";
 import { PlayerPanelProps } from "../../components/Player";
 import { Store } from "../../libs/gameStore";
-import { getAvailableDestinations } from "../../model/logic";
+import { canPutIslandChecker, getAvailableDestinations } from "../../model/logic";
 import { PlayingState, GameCommand, PlayerStatus } from "../../model/store";
 
 export type ViewState = {
@@ -44,20 +44,24 @@ export const finalize = (
             if (!token) {
                 throw new Error("Never");
             }
+            const canPut = canPutIslandChecker(state.board.map,state.board.tokens,you.base.code)
             const map: BoardItemProps[] =
                 state.controller.type === "YourTurn" ? state.board.map.map(cell => {
-                    return {
+                    return canPut(cell) ? {
                         ...cell,
                         select() {
                             state.store.dispatch({
                                 type: "PUT_ISLAND",
                                 value: {
-                                    x: cell.x,
-                                    y: cell.y
+                                    address:{
+                                        x: cell.x,
+                                        y: cell.y
+                                    },
+                                    player: you.base.code
                                 }
                             })
                         }
-                    }
+                    } : cell
                 }) : state.board.map
             const playerModelToViewProps = (player: PlayerStatus): PlayerPanelProps => {
                 const isYou = player.base.code === you.base.code;

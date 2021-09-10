@@ -72,7 +72,7 @@ export const createCards: () => CardBody[] = () => {
     }));
     const curved: CardBody[] =
         MAP_SIZE.reduce<CardBody[]>(
-            (acc, num1) => MAP_SIZE.reduce<CardBody[]>((acc, num2) => num1 + num2 > allowedProximityNum ? acc : [...acc, { type: "Curved", number: [num1, num2] }], acc), [])
+            (acc, num1) => MAP_SIZE.reduce<CardBody[]>((acc, num2) => num1 + num2 > allowedProximityNum || num1 + num2 <= 1 ? acc : [...acc, { type: "Curved", number: [num1, num2] }], acc), [])
 
     return [...straight, ...curved]
 }
@@ -100,34 +100,37 @@ type MoveChunk = {
     direction: Direction,
     number: number
 }
-const move = (current: Address, chunks: MoveChunk[], cells: CellsMap,tokens: Token[]): Address | null => {
-    const simpleMove = (current: Address, direction: Direction): Address => {
-        const dirToXY: Record<Direction, Address> = {
-            "X+": { x: 1, y: 0 },
-            "X-": { x: -1, y: 0 },
-            "Y+": { x: 0, y: 1 },
-            "Y-": { x: 0, y: -1 }
-        }
-        const xy = dirToXY[direction];
-        return {
-            x: current.x + xy.x,
-            y: current.y + xy.y,
-        }
-    }
 
+const simpleMove = (current: Address, direction: Direction): Address => {
+    const dirToXY: Record<Direction, Address> = {
+        "X+": { x: 1, y: 0 },
+        "X-": { x: -1, y: 0 },
+        "Y+": { x: 0, y: 1 },
+        "Y-": { x: 0, y: -1 }
+    }
+    const xy = dirToXY[direction];
+    return {
+        x: current.x + xy.x,
+        y: current.y + xy.y,
+    }
+}
+const move = (current: Address, chunks: MoveChunk[], cells: CellsMap,tokens: Token[]): Address | null => {
+    
     const fn = (cur: Address, chunkNumber: number, number: number): Address | null => {
         const cell = cells.get(cur);
         if (!cell) {
             return null
         }
-        const stop = 
-            (cell.content.type === "ISLAND" || cell.content.type === "SYMBOL") 
-            && !tokens.find(token => token.x === cell.x && token.y === cell.y)
         const chunk = chunks[chunkNumber];
         if (!chunk) {
+            const stop = 
+                (cell.content.type === "ISLAND" || cell.content.type === "SYMBOL") 
+                && !tokens.find(token => token.x === cell.x && token.y === cell.y)
             return stop ? cur : null
         }
-        if (stop && (chunkNumber !== 0 || number !== 0)) {
+
+        const passable = cell.content.type === "SEA"
+        if (!passable && (chunkNumber !== 0 || number !== 0)) {
             return null
         }
         const next = simpleMove(cur, chunk.direction);
@@ -219,6 +222,32 @@ export const moveWithCard = (use: CardUse, card: CardBody, cur: Address, cells: 
     throw new Error("不正なカード使用です")
 }
 
+
+export const canPutIslandChecker = (cells:Cell[],tokens:Token[],yourCode:number) :(address:Address) => boolean => {
+    const map = toCellsMap(cells);
+    const isSea = (cell:Cell):boolean => {
+        return cell.content.type === "SEA"
+    }
+    const isNotNextToIsland = (cell:Cell) : boolean => {
+        return !DIRECTIONS.some(dir => {
+            const next = simpleMove(cell,dir);
+            const nextCell = map.get(next);
+            return nextCell && (nextCell.content.type === "ISLAND" || nextCell.content.type === "SYMBOL")
+        })
+    }
+    const isNearToken = (cell:Cell): boolean => {
+        return tokens.some(token => token.code !== yourCode && (Math.abs(token.x - cell.x) + Math.abs(token.y - cell.y)) <= 4)
+    }
+    const filtered = cells
+        .filter(isSea)
+        .filter(isNotNextToIsland)
+        .filter(isNearToken)
+    const filteredMap = toCellsMap(filtered)
+
+    return (address:Address):boolean => {
+        return !!filteredMap.get(address)
+    }
+}
 
 export const exportForTest = {
     toCellsMap

@@ -1,5 +1,5 @@
 import { CommandRecord, StoreLogic } from "../libs/gameStore"
-import { createMap, moveWithCard, pickCard, STARTING_ISLANDS } from "./logic"
+import { canPutIslandChecker, createMap, moveWithCard, pickCard, STARTING_ISLANDS } from "./logic"
 import { Address, Card, CardUse, Cell, Player, Token } from "./types";
 import {v4 as uuid} from "uuid";
 
@@ -33,7 +33,10 @@ export type GameCommand = {
     }
 } | {
     type: "PUT_ISLAND",
-    value: Address
+    value: {
+        address:Address,
+        player: number
+    }
 }
 
 export type GameResult = {
@@ -136,11 +139,16 @@ export const logic : StoreLogic<GameState,GameCommand,GameResult> = {
                 return result;
 
             case "PUT_ISLAND":
-                return {
-                    type: "PUT_ISLAND",
-                    value: command.value
+                if(prev.type !== "PLAYING"){
+                    invalidType();
                 }
-
+                if(canPutIslandChecker(prev.map,prev.tokens,command.value.player)(command.value.address)){
+                    return {
+                        type: "PUT_ISLAND",
+                        value: command.value.address
+                    }
+                }
+                invalidType();
         }
     },
     reducer(prev,result) {

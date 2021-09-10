@@ -8,11 +8,22 @@
     align-items: center;
     &[data-clickable=true]{
         cursor: pointer;
-        &:hover {
-            .content {
-                background-color: color(black2);
+        
+        .content {
+            height: shrinkedSize(28);
+            width: size(28);
+            background-color: color(black4);
+            border-radius: 20%;
+            &:hover::before {
+                position: absolute;
+                content: "";
+                height: 100%;
+                width: 100%;
+                background-color: color(overwrap);
             }
         }
+        
+        
     }
     
 }
