@@ -1,5 +1,4 @@
 import React from "react";
-import { Map } from "../../model/types";
 import { Token } from "../../model/types";
 import { Board, BoardItemProps } from "../Board";
 import { DestinationProps, Man, TokenVirtual } from "../Man";
