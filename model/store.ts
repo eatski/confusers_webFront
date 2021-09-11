@@ -86,7 +86,7 @@ export const logic : StoreLogic<GameState,GameCommand,GameResult> = {
                     const playersStatus = gamePlayers.map(p => {
                         return {
                             base:p,
-                            cards: [1,2,3].map<Card>(() => ({
+                            cards: [1,2,3,4].map<Card>(() => ({
                                 id: uuid(),
                                 body: pickCard()
                             }))

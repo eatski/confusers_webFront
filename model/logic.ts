@@ -66,13 +66,13 @@ export const createMap = (): Cell[] => {
 
 export const createCards: () => CardBody[] = () => {
     const MAP_SIZE = [...Array(allowedProximityNum)].map((_, i) => i + 1);
-    const straight: CardBody[] = MAP_SIZE.map(number => ({
+    const straight: CardBody[] = MAP_SIZE.filter(i => i !== 1).map(number => ({
         type: "Straight",
         number
     }));
     const curved: CardBody[] =
         MAP_SIZE.reduce<CardBody[]>(
-            (acc, num1) => MAP_SIZE.reduce<CardBody[]>((acc, num2) => num1 + num2 > allowedProximityNum || num1 + num2 <= 1 ? acc : [...acc, { type: "Curved", number: [num1, num2] }], acc), [])
+            (acc, num1) => MAP_SIZE.reduce<CardBody[]>((acc, num2) => num1 + num2 > allowedProximityNum ? acc : [...acc, { type: "Curved", number: [num1, num2] }], acc), [])
 
     return [...straight, ...curved]
 }
