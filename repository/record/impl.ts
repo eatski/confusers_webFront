@@ -26,7 +26,7 @@ export const createFirestoreRecordRepository = (roomId:string):RecordRepository<
             }
         },
         sync(listener){
-            return recordsRef.orderBy("SEQ_NO_KEY").onSnapshot(snapshot => {
+            return recordsRef.orderBy(SEQ_NO_KEY).onSnapshot(snapshot => {
                 const records = snapshot.docChanges().map(e => {
                     if(e.type !== "added"){
                         throw new Error("Invalid Command")
