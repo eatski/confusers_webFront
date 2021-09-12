@@ -30,8 +30,8 @@ export type MoveCardBody =
     }
 
 
-export type CardUse = 
-    MoveCardUse | 
+export type CardUse =
+    MoveCardUse |
     {
         type: AnywhereBuild,
         address: Address

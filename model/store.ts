@@ -1,5 +1,5 @@
 import { CommandRecord, StoreLogic } from "../libs/gameStore"
-import { canPutIslandChecker, CardUseWithBody, createMap, moveWithCard, pickCard, STARTING_ISLANDS, toCardUseWithBody } from "./logic"
+import { canPutIslandChecker, createMap, moveWithCard, pickCard, STARTING_ISLANDS, toCardUseWithBody } from "./logic"
 import { Address, Card, CardUse, Cell, Player, Token } from "./types";
 import { v4 as uuid } from "uuid";
 
@@ -120,7 +120,6 @@ export const logic: StoreLogic<GameState, GameCommand, GameResult> = {
                 if (!token) {
                     invalidType();
                 }
-                console.log(card);
                 const cardUseWithBody = toCardUseWithBody(card.body,value.use);
                 switch (cardUseWithBody.type) {
                     case "Curved":
