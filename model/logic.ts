@@ -1,4 +1,4 @@
-import { Address, CardBody, CardUse, Cell, Direction, DIRECTIONS, SYMBOLS, SymbolType, Token } from "./types";
+import { Address, CardBody, CardUse, Cell, Direction, DIRECTIONS, MoveCardBody, MoveCardUse, SYMBOLS, SymbolType, Token } from "./types";
 
 const rnd = (num: number) => Math.floor(Math.random() * num);
 const pickRnd = <T>(array: T[]): [T, T[]] => {
@@ -114,24 +114,43 @@ const simpleMove = (current: Address, direction: Direction): Address => {
         y: current.y + xy.y,
     }
 }
-const move = (current: Address, chunks: MoveChunk[], cells: CellsMap,tokens: Token[]): Address | null => {
+export type MoveResult = {
+    ok: true,
+    address: Address
+} | {
+    ok: false,
+    cause : "TOKEN_IS_HERE" | "OUT_OF_CELLS" | "CANNOT_STOP" | "BLOCKED"
+}
+const move = (current: Address, chunks: MoveChunk[], cells: CellsMap,tokens: Token[]): MoveResult => {
     
-    const fn = (cur: Address, chunkNumber: number, number: number): Address | null => {
+    const fn = (cur: Address, chunkNumber: number, number: number): MoveResult => {
         const cell = cells.get(cur);
         if (!cell) {
-            return null
+            return {
+                ok:false,
+                cause:"OUT_OF_CELLS"
+            }
         }
         const chunk = chunks[chunkNumber];
         if (!chunk) {
             const stop = 
                 (cell.content.type === "ISLAND" || cell.content.type === "SYMBOL") 
                 && !tokens.find(token => token.x === cell.x && token.y === cell.y)
-            return stop ? cur : null
+            return stop ? {
+                ok:true,
+                address: cur
+            } : {
+                ok: false,
+                cause: "CANNOT_STOP"
+            }
         }
 
         const passable = cell.content.type === "SEA"
         if (!passable && (chunkNumber !== 0 || number !== 0)) {
-            return null
+            return {
+                ok:false,
+                cause: "BLOCKED"
+            }
         }
         const next = simpleMove(cur, chunk.direction);
         return chunk.number === number + 1 ?
@@ -141,8 +160,8 @@ const move = (current: Address, chunks: MoveChunk[], cells: CellsMap,tokens: Tok
     return fn(current, 0, 0);
 }
 
-type AvailableDestinations = { use: CardUse, next: Address }
-export const getAvailableDestinations = (card: CardBody, cells: Cell[], cur: Address,tokens:Token[]): AvailableDestinations[] => {
+type AvailableDestinations = { use: MoveCardUse, next: Address }
+export const getAvailableDestinations = (card: MoveCardBody, cells: Cell[], cur: Address,tokens:Token[]): AvailableDestinations[] => {
     const map = toCellsMap(cells);
     const opposeDirection: Record<Direction, Direction> = {
         "X+": "X-",
@@ -158,13 +177,13 @@ export const getAvailableDestinations = (card: CardBody, cells: Cell[], cur: Add
                     { direction: dir,number: card.number}
                 ]
                 const res = move(cur, chunks, map ,tokens);
-                if (res) {
+                if (res.ok) {
                     const use: CardUse = {
                         type: "Straight",
                         direction: dir
                     }
                     return [...acc, {
-                        use, next: res
+                        use, next: res.address
                     }]
                 }
                 return acc
@@ -179,14 +198,14 @@ export const getAvailableDestinations = (card: CardBody, cells: Cell[], cur: Add
                                 { direction: dir1,number: card.number[0]},
                                 { direction: dir2,number: card.number[1]}
                             ]
-                            const res2 = move(cur, chunks, map,tokens);
-                            if (res2) {
+                            const res = move(cur, chunks, map,tokens);
+                            if (res.ok) {
                                 const use: CardUse = {
                                     type: "Curved",
                                     direction: [dir1, dir2]
                                 }
                                 return [...acc, {
-                                    use, next: res2
+                                    use, next: res.address
                                 }]
                             }
                             return acc
@@ -196,32 +215,65 @@ export const getAvailableDestinations = (card: CardBody, cells: Cell[], cur: Add
     }
 }
 
-export const moveWithCard = (use: CardUse, card: CardBody, cur: Address, cells: Cell[],tokens:Token[]): Address => {
-    const map = toCellsMap(cells);
-    if (use.type === "Curved" && card.type === "Curved") {
-        const chunks: MoveChunk[] = [
-            { direction: use.direction[0], number: card.number[0]},
-            { direction: use.direction[1], number: card.number[1]}
-        ]
-        const result = move(cur, chunks, map,tokens);
-        if (!result) {
-            throw new Error("不正なカード使用です")
-        }
-        return result;
-    }
-    if (use.type === "Straight" && card.type === "Straight") {
-        const chunks: MoveChunk[] = [
-            { direction: use.direction, number: card.number},
-        ]
-        const result = move(cur, chunks, map,tokens)
-        if (!result) {
-            throw new Error("不正なカード使用です")
-        }
-        return result;
-    }
-    throw new Error("不正なカード使用です")
+
+type __PickOne<Target,Extend> = Target extends Extend ? Target : never
+export type CardUseWithBody<T extends CardBody["type"] = CardBody["type"]> = T extends never ? never : {
+    type:T,
+    body: __PickOne<CardBody,{type:T}>,
+    use: __PickOne<CardUse,{type:T}>,
 }
 
+export const toCardUseWithBody = (body: CardBody,use: CardUse):CardUseWithBody => {
+
+    if(body.type === "Straight" && use.type === "Straight"){
+        return {
+            type: "Straight",
+            use,
+            body
+        }
+    }
+    if(body.type === "Curved" && use.type === "Curved"){
+        return {
+            type: "Curved",
+            use,
+            body
+        }
+    }
+    if(body.type === "AnywhereBuild" && use.type === "AnywhereBuild"){
+        return {
+            type: "AnywhereBuild",
+            use,
+            body
+        }
+    }
+    throw new Error(`不正なカード使用です。 body:${body.type} use:${use.type}`);
+}
+export const moveWithCard = (card : CardUseWithBody<"Curved" | "Straight">, cur: Address, cells: Cell[],tokens:Token[]): Address => {
+    const map = toCellsMap(cells);
+    switch (card.type) {
+        case "Curved": {
+            const chunks: MoveChunk[] = [
+                { direction: card.use.direction[0], number: card.body.number[0]},
+                { direction: card.use.direction[1], number: card.body.number[1]}
+            ]
+            const result = move(cur, chunks, map,tokens);
+            if (!result.ok) {
+                throw new Error(`Invalid Card Using. Cause:${result.cause}`)
+            }
+            return result.address;
+        }
+        case "Straight": {
+            const chunks: MoveChunk[] = [
+                { direction: card.use.direction, number: card.body.number},
+            ]
+            const result = move(cur, chunks, map,tokens);
+            if (!result.ok) {
+                throw new Error(`Invalid Card Using. Cause:${result.cause}`)
+            }
+            return result.address;
+        }
+    }
+}
 
 export const canPutIslandChecker = (cells:Cell[],tokens:Token[],yourCode:number) :(address:Address) => boolean => {
     const map = toCellsMap(cells);

@@ -1,6 +1,10 @@
 import React from "react";
 import { Card } from "../../model/types";
-import styles from "./style.module.scss"
+import styles from "./style.module.scss";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { 
+    faLongArrowAltRight 
+} from '@fortawesome/free-solid-svg-icons'
 
 export type CardViewProps = Card & {
     code: number,
@@ -32,6 +36,10 @@ export const CardView: React.FC<CardViewProps> = ({body,code,hidden,select,selec
                     <div className={styles.curveNumContainerLeft}>{body.number[0]}</div>
                     <div className={styles.curveNumContainerRight}>{body.number[1]}</div>
                 </div>
+            </div>
+        case "AnywhereBuild":
+            return <div className={styles.container} onClick={select} data-clickable={!!select}>
+                <FontAwesomeIcon icon={faLongArrowAltRight}></FontAwesomeIcon>
             </div>
     }
     
