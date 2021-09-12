@@ -34,19 +34,43 @@ export const createStore = <
 ) : Store<Command>=> {
     let state : State = initial;
     let stacked : string[] = []
-    const dispatch = async (command:Command) => {
-        const result = script(state,command);
+    const _script = (state:State,command:Command):Result => {
+        try {
+            return script(state,command)
+        } catch (error) {
+            throw new Error(`
+                Invalid command:
+
+                Previous state => ${JSON.stringify(state)},
+                Command => ${JSON.stringify(command)}
+            `)
+        }
+    }
+    const _reducer = (state:State,result:Result):State => {
+        try {
+            return reducer(state,result)
+        } catch (error) {
+            throw new Error(`
+                Invalid reducing:
+
+                Previous state => ${JSON.stringify(state)},
+                Result => ${JSON.stringify(result)}
+            `)
+        }
+    }
+    const dispatch = (command:Command) => {
+        const result = _script(state,command);
         const {id,exec} = repository.add({result,command})
         stacked = [...stacked,id];
-        state = reducer(state,result);
+        state = _reducer(state,result);
         listener([{result,command,id}],state);
         return exec();
     }
     const removeListener = repository.sync((records) => {
         const notStacked = records.filter(record => !stacked.some(id => record.id === id))
-        state = notStacked.reduce((acc,{result}) => reducer(acc,result),state);
+        state = notStacked.reduce((acc,{result}) => _reducer(acc,result),state);
         stacked = stacked.filter(id => !records.some(record => record.id === id));
-        listener(records,state);
+        listener(notStacked,state);
     })
     return {
         dispatch,
