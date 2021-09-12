@@ -4,7 +4,7 @@ import { CommandRecord, RecordRepository } from "../../libs/gameStore";
 
 const SEQ_NO_KEY = "__seqNo"
 
-export const createFirestoreRecordRepository = (roomId:string):RecordRepository<GameResult,GameCommand> => {
+export const createFirestoreRecordRepository = (roomId:string):RecordRepository<GameCommand,GameResult> => {
     const store = getStore();
     const recordsRef = store.collection("rooms").doc(roomId).collection("records");
     return {
@@ -33,7 +33,7 @@ export const createFirestoreRecordRepository = (roomId:string):RecordRepository<
                     }
                     //FXIME: type
                     const data = e.doc.data()
-                    return {command: JSON.parse(data.command),result:JSON.parse(data.result),id:data.id} as CommandRecord<GameResult,GameCommand>;
+                    return {command: JSON.parse(data.command),result:JSON.parse(data.result),id:data.id} as CommandRecord<GameCommand,GameResult>;
         
                 })
                 listener(records);

@@ -102,11 +102,13 @@ export const finalize = (
             }
             const players: PlayerPanelProps[] = state.board.players.map(playerModelToViewProps);
             const cardToDestinationProps = (you: PlayerStatus, controller: Controller): DestinationProps[] | null => {
-                console.log(token);
                 if (controller.type === "SelectDestination") {
                     const card = you.cards.find(card => card.id === controller.card);
                     if (!card) {
                         throw new Error("Never");
+                    }
+                    if(card.body.type === "AnywhereBuild"){
+                        throw new Error("TODO")
                     }
                     return getAvailableDestinations(card.body, state.board.map, token,state.board.tokens)
                         .map<DestinationProps>(({ use, next }) => {

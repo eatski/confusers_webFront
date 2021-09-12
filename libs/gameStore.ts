@@ -11,9 +11,9 @@ export type StoreLogic<
 export type CommandRecordInput<Command,Result> =  {command:Command,result:Result}
 export type CommandRecord<Command,Result> =  {command:Command,result:Result,id:string}
 
-export interface RecordRepository<R,C> {
-    add: (record:CommandRecordInput<R,C>) => {id:string,exec:() => Promise<void>};
-    sync: (listener:(records:CommandRecord<R,C>[])=> void) => () => void
+export interface RecordRepository<Command,Result> {
+    add: (record:CommandRecordInput<Command,Result>) => {id:string,exec:() => Promise<void>};
+    sync: (listener:(records:CommandRecord<Command,Result>[])=> void) => () => void
 }
 
 export type Store<
