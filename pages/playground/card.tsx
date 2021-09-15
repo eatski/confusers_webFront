@@ -1,18 +1,18 @@
 import { useState } from "react"
 import { CardView } from "../../components/Card"
-import { CARDS } from "../../model/types"
+import { createCards } from "../../model/logic";
 
 const CardPlayground : React.FC = () => {
-    const [state,setState] = useState<number | null>(null);
+    const [state,setState] = useState<string | null>(null);
     return <div>
-        {CARDS.map((card,index) => <CardView 
-            id={index.toString()}
-            body={card}
-            key={index} 
+        {createCards().map((card) => <CardView 
+            id={card.id}
+            body={card.body}
+            key={card.id} 
             hidden={false}
-            selected={state === index} 
+            selected={state === card.id} 
             code={0} 
-            select={() => setState(index)}>
+            select={() => setState(card.id)}>
         </CardView>)}
     </div>
 }

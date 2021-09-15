@@ -47,17 +47,17 @@ export type MoveCardUse =
         direction: Direction
     }
 
-export const CARDS: CardBody[] = [
-    { type: "Straight", number: 2 },
-    { type: "Straight", number: 3 },
-    { type: "Straight", number: 4 },
-    { type: "Curved", number: [1, 1] },
-    { type: "Curved", number: [1, 2] },
-    { type: "Curved", number: [1, 3] },
-    { type: "Curved", number: [2, 1] },
-    { type: "Curved", number: [2, 2] },
-    { type: "Curved", number: [3, 1] },
-    { type: "AnywhereBuild" }
+export const CARDS: [CardBody,number][] = [
+    [{ type: "Straight", number: 2 },4],
+    [{ type: "Straight", number: 3 },4],
+    [{ type: "Straight", number: 4 },2],
+    [{ type: "Curved", number: [1, 1] },4],
+    [{ type: "Curved", number: [1, 2] },4],
+    [{ type: "Curved", number: [1, 3] },2],
+    [{ type: "Curved", number: [2, 1] },4],
+    [{ type: "Curved", number: [2, 2] },2],
+    [{ type: "Curved", number: [3, 1] },2],
+    // { type: "AnywhereBuild" }
 ]
 
 export type Address = { x: number, y: number }

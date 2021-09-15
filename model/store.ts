@@ -1,7 +1,8 @@
 import { CommandRecord, StoreLogic } from "../libs/gameStore"
-import { canPutIslandChecker, createMap, moveWithCard, pickCard, STARTING_ISLANDS, toCardUseWithBody } from "./logic"
+import { canPutIslandChecker, createCards, createMap, excludeCards, moveWithCard, pickCard, pickCards, STARTING_ISLANDS, toCardUseWithBody } from "./logic"
 import { Address, Card, CardUse, Cell, Player, Token } from "./types";
 import { v4 as uuid } from "uuid";
+import { recur } from "../libs/util";
 
 export type GameState = {
     type: "STANDBY"
@@ -83,15 +84,23 @@ export const logic: StoreLogic<GameState, GameCommand, GameResult> = {
                         if (address === undefined) throw new Error("STARTING_ISLANDSがプレイヤーの数に対して合ってません")
                         return { x: address.x, y: address.y, code: p.code }
                     })
-                    const playersStatus = gamePlayers.map(p => {
-                        return {
-                            base: p,
-                            cards: [1, 2, 3, 4].map<Card>(() => ({
-                                id: uuid(),
-                                body: pickCard()
-                            }))
+                    const CARDS_NUM = 4
+                    const playersStatus : PlayerStatus[] = recur((next,cards,participants,code) => {
+                        const [participant,...remainedParticipant] = participants
+                        if(!participant){
+                            return []
                         }
-                    })
+                        const {picked,remained} = pickCards(cards,CARDS_NUM);
+                        const player : PlayerStatus = {
+                            cards:picked,
+                            base: {
+                                code,
+                                displayName:participant.displayName,
+                                id: participant.id
+                            }
+                        }
+                        return [player,...next(remained,remainedParticipant,code + 1)]
+                    },createCards(),gamePlayers,0)
                     const result: GameResult = {
                         type: "CREATE_BOARD",
                         value: {
@@ -125,6 +134,12 @@ export const logic: StoreLogic<GameState, GameCommand, GameResult> = {
                     case "Curved":
                     case "Straight":
                         const moveTo = moveWithCard(cardUseWithBody, { x: token.x, y: token.y }, prev.map, prev.tokens);
+                        const newCard = pickCard(excludeCards(
+                            recur((next,players) => {
+                                const [player,...remained] = players;
+                                return player ? [...player.cards,...next(remained)] : []
+                            },prev.players)
+                        )).picked
                         const result: GameResult = {
                             type: "MOVE_TOKEN_WITH_CARD",
                             value: {
@@ -133,10 +148,7 @@ export const logic: StoreLogic<GameState, GameCommand, GameResult> = {
                                     code: value.player,
                                     ...moveTo
                                 },
-                                newCard: {
-                                    id: uuid(),
-                                    body: pickCard()
-                                },
+                                newCard,
                                 usedCard: value.card
                             }
                         }

@@ -38,11 +38,15 @@ export const createStore = <
         try {
             return script(state, command)
         } catch (error) {
+            console.error(error);
             throw new Error(`
                 Invalid command:
 
                 Previous state => ${JSON.stringify(state)},
                 Command => ${JSON.stringify(command)}
+
+                >>>
+                ${error}
             `)
         }
     }
@@ -50,11 +54,15 @@ export const createStore = <
         try {
             return reducer(state, result)
         } catch (error) {
+            console.error(error);
             throw new Error(`
                 Invalid reducing:
 
                 Previous state => ${JSON.stringify(state)},
                 Result => ${JSON.stringify(result)}
+
+                >>>
+                ${error}
             `)
         }
     }

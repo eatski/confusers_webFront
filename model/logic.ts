@@ -1,7 +1,11 @@
-import { Address, CardBody, CardUse, Cell, Direction, DIRECTIONS, MoveCardBody, MoveCardUse, SYMBOLS, SymbolType, Token } from "./types";
+import { recur } from "../libs/util";
+import { Address, Card, CardBody, CARDS, CardUse, Cell, Direction, DIRECTIONS, MoveCardBody, MoveCardUse, SYMBOLS, SymbolType, Token } from "./types";
 
 const rnd = (num: number) => Math.floor(Math.random() * num);
 const pickRnd = <T>(array: T[]): [T, T[]] => {
+    if(!array.length){
+        throw new Error("No item remained.")
+    }
     const pickedIndex = rnd(array.length);
     const picked = array[pickedIndex];
     if (!picked) {
@@ -10,11 +14,14 @@ const pickRnd = <T>(array: T[]): [T, T[]] => {
     const newArray = array.filter((_, i) => i !== pickedIndex);
     return [picked, newArray]
 }
+const numbersArray = (num:number):number[] => {
+    return [...Array(num)].map((_, i) => i)
+}
 
 export const STARTING_ISLANDS: Address[] = [{ x: 6, y: 6 }, { x: 7, y: 6 }, { x: 6, y: 7 }, { x: 7, y: 7 }];
 const allowedProximityNum = 4;
 export const createMap = (): Cell[] => {
-    const MAP_SIZE = [...Array(14)].map((_, i) => i);
+    const MAP_SIZE = numbersArray(14);
     const addresses: Address[] = MAP_SIZE.reduce<Address[]>((acc, x) => MAP_SIZE.reduce<Address[]>((acc, y) => [...acc, { x, y }], acc), [])
 
     const isAllowedProximity = (a: Address, b: Address): boolean => {
@@ -64,23 +71,34 @@ export const createMap = (): Cell[] => {
     })
 }
 
-export const createCards: () => CardBody[] = () => {
-    const MAP_SIZE = [...Array(allowedProximityNum)].map((_, i) => i + 1);
-    const straight: CardBody[] = MAP_SIZE.filter(i => i !== 1).map(number => ({
-        type: "Straight",
-        number
-    }));
-    const curved: CardBody[] =
-        MAP_SIZE.reduce<CardBody[]>(
-            (acc, num1) => MAP_SIZE.reduce<CardBody[]>((acc, num2) => num1 + num2 > allowedProximityNum ? acc : [...acc, { type: "Curved", number: [num1, num2] }], acc), [])
-
-    return [...straight, ...curved]
+export const createCards: () => Card[] = () => {
+    const cardbodies = CARDS.reduce<CardBody[]>(
+        (acc,[card,number]) => [...acc,...(numbersArray(number).map(() => card))],
+        []
+    )
+    return cardbodies.map((body,index) => ({id:index.toString(),body}))
 }
 
-export const pickCard = (): CardBody => {
-    const cards = createCards();
-    const [card] = pickRnd(cards);
-    return card;
+export const excludeCards = (excludees:Card[]) => createCards().filter(card => !excludees.some(e => e.id === card.id))
+
+export const pickCards = (cards:Card[],number:number): {picked:Card[],remained:Card[]} => {
+    return recur((next,cards,number) => {
+        if(number === 0) return {
+            picked:[],
+            remained:cards
+        }
+        const res = pickCard(cards);
+        const {picked,remained} = next(res.remained,number - 1)
+        return {
+            picked:[res.picked,...picked],
+            remained
+        }
+    },cards,number)
+}
+
+export const pickCard = (cards:Card[]): {picked:Card,remained:Card[]} => {
+    const [picked,remained] = pickRnd(cards);
+    return {picked,remained}
 }
 
 const toCellsMap = (cells: Cell[]): CellsMap => {
