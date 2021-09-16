@@ -4,7 +4,7 @@ import { CardViewProps } from "../../components/Card";
 import { GamePlayProps } from "../../components/Gameplay";
 import { DestinationProps } from "../../components/Man";
 import { PlayerPanelProps } from "../../components/Player";
-import { Store } from "../../libs/gameStore";
+import { Store } from "exprocess";
 import { canPutIslandChecker, getAvailableDestinations } from "../../model/logic";
 import { PlayingState, GameCommand, PlayerStatus } from "../../model/store";
 

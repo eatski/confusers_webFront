@@ -27,7 +27,8 @@
     "react-dom": "17.0.2",
     "sass": "^1.38.0",
     "ts-jest": "^27.0.5",
-    "uuid": "^8.3.2"
+    "uuid": "^8.3.2",
+    "exprocess": "https://github.com/itskihaga/exprocess.git#89df98d96dfe4643f13cbffbff88779385eae161"
   },
   "devDependencies": {
     "@types/lodash-es": "^4.17.4",

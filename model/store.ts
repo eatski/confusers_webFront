@@ -1,7 +1,6 @@
-import { CommandRecord, StoreLogic } from "../libs/gameStore"
+import { CommandRecord, StoreLogic } from "exprocess"
 import { canPutIslandChecker, createCards, createMap, excludeCards, moveWithCard, pickCard, pickCards, STARTING_ISLANDS, toCardUseWithBody } from "./logic"
 import { Address, Card, CardUse, Cell, Player, Token } from "./types";
-import { v4 as uuid } from "uuid";
 import { recur } from "../libs/util";
 
 export type GameState = {

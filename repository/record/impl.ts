@@ -1,14 +1,26 @@
 import { getStore } from "../../database/firestore";
 import { GameCommand, GameResult } from "../../model/store";
-import { CommandRecord, RecordRepository } from "../../libs/gameStore";
+import { CommandRecord, RecordRepository, RecordRepositoryListener } from "exprocess";
 
 const SEQ_NO_KEY = "__seqNo"
 
-export const createFirestoreRecordRepository = (roomId:string):RecordRepository<GameCommand,GameResult> => {
+export const createFirestoreRecordRepository = (roomId:string,listener: RecordRepositoryListener<GameCommand,GameResult>):RecordRepository<GameCommand,GameResult> => {
     const store = getStore();
     const recordsRef = store.collection("rooms").doc(roomId).collection("records");
+    const unwatch = recordsRef.orderBy(SEQ_NO_KEY).onSnapshot(snapshot => {
+        const records = snapshot.docChanges().map(e => {
+            if(e.type !== "added"){
+                throw new Error("Invalid Command")
+            }
+            //FXIME: type
+            const data = e.doc.data()
+            return {command: JSON.parse(data.command),result:JSON.parse(data.result),id:data.id} as CommandRecord<GameCommand,GameResult>;
+
+        })
+        listener(records);
+    })
     return {
-        add({command,result}) {
+        save({command,result}) {
             const doc = recordsRef.doc();
             return {
                 id:doc.id,
@@ -25,19 +37,6 @@ export const createFirestoreRecordRepository = (roomId:string):RecordRepository<
                 }
             }
         },
-        sync(listener){
-            return recordsRef.orderBy(SEQ_NO_KEY).onSnapshot(snapshot => {
-                const records = snapshot.docChanges().map(e => {
-                    if(e.type !== "added"){
-                        throw new Error("Invalid Command")
-                    }
-                    //FXIME: type
-                    const data = e.doc.data()
-                    return {command: JSON.parse(data.command),result:JSON.parse(data.result),id:data.id} as CommandRecord<GameCommand,GameResult>;
-        
-                })
-                listener(records);
-            })
-        }
+        unwatch
     }
 }

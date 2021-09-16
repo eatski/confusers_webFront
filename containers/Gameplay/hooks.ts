@@ -3,12 +3,10 @@ import { getRoomId } from "../../clientData/room";
 import { YourIdClientImpl } from "../../clientData/you";
 import { GamePlayProps } from "../../components/Gameplay";
 import { logic } from "../../model/store";
-import { createStore } from "../../libs/gameStore";
+import { createStore } from "exprocess";
 import { getMeetingPlayerRepository } from "../../repository/meetingPlayer";
-import { getRecordRepository } from "../../repository/record";
+import { createRecordRepository } from "../../repository/record";
 import { finalize, ViewState } from "./finalize";
-
-
 
 export const useGamePlay = (): GamePlayProps => {
     const [state, setState] = useState<ViewState>({
@@ -51,11 +49,11 @@ export const useGamePlay = (): GamePlayProps => {
                         }))
                 }
             },
-            getRecordRepository()
+            createRecordRepository
         );
         
         return () => {
-            store.removeListener();
+            store.unwatch();
         }
     }, [])
 
